@@ -124,6 +124,34 @@ extern "C" {
     LIB_EXPORT const char *plc_tag_decode_error(int err);
 
 
+	/*
+	 * Set the debug level.
+     * 
+	 * This function takes values from the defined debug levels below.  It sets
+	 * the debug level to the passed value.  Higher numbers output increasing amounts
+	 * of information.   Input values not defined below will be ignored.
+	 */
+
+	#define PLCTAG_DEBUG_NONE      (0)
+	#define PLCTAG_DEBUG_ERROR     (1)
+	#define PLCTAG_DEBUG_WARN      (2)
+	#define PLCTAG_DEBUG_INFO      (3)
+	#define PLCTAG_DEBUG_DETAIL    (4)
+	#define PLCTAG_DEBUG_SPEW      (5)
+
+	LIB_EXPORT void plc_tag_set_debug_level(int debug_level);
+
+
+	/*
+	 * return the library version as an encoded 32-bit integer.
+	 * 
+	 * The version is encoded in the lower three bytes of the return value.
+	 * The bytes are the patch version, the minor version and the major version.
+	 * 
+	 * 0x00020104 is version 2.1.4
+	 */
+
+	LIB_EXPORT int32_t plc_tag_get_lib_version(void);
 
 
     /*

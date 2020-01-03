@@ -27,6 +27,7 @@
 #include <lib/libplctag.h>
 #include <lib/tag.h>
 #include <lib/init.h>
+#include <lib/version.h>
 #include <platform.h>
 #include <util/attr.h>
 #include <util/debug.h>
@@ -300,6 +301,50 @@ LIB_EXPORT const char *plc_tag_decode_error(int rc)
 
 
 
+
+
+/*
+ * Set the debug level.
+ *
+ * This function takes values from the defined debug levels.  It sets
+ * the debug level to the passed value.  Higher numbers output increasing amounts
+ * of information.   Input values not defined will be ignored.
+ */
+
+LIB_EXPORT void plc_tag_set_debug_level(int debug_level)
+{
+	if (debug_level >= PLCTAG_DEBUG_NONE && debug_level <= PLCTAG_DEBUG_SPEW) {
+		set_debug_level(debug_level);
+	}
+}
+
+
+
+
+/*
+ * return the library version as an encoded 32-bit integer.
+ *
+ * The version is encoded in the lower three bytes of the return value.
+ * The bytes are the patch version, the minor version and the major version.
+ *
+ * 0x00020104 is version 2.1.4
+ */
+
+LIB_EXPORT int32_t plc_tag_get_lib_version(void)
+{
+	int32_t result = 0;
+
+	result = (((int32_t)version_major) << 16) +
+		(((int32_t)version_minor) << 8) +
+		(int32_t)version_patch;
+
+	return result;
+}
+
+
+
+
+
 /*
  * plc_tag_create()
  *
@@ -316,6 +361,7 @@ LIB_EXPORT int32_t plc_tag_create(const char *attrib_str, int timeout)
     int rc = PLCTAG_STATUS_OK;
     int read_cache_ms = 0;
     tag_create_function tag_constructor;
+	int debug_level = -1;
 
     pdebug(DEBUG_INFO,"Starting");
 
@@ -336,7 +382,10 @@ LIB_EXPORT int32_t plc_tag_create(const char *attrib_str, int timeout)
     }
 
     /* set debug level */
-    set_debug_level(attr_get_int(attribs, "debug", DEBUG_NONE));
+	debug_level = attr_get_int(attribs, "debug", -1);
+	if (debug_level > DEBUG_NONE) {
+		set_debug_level(debug_level);
+	}
 
     /*
      * create the tag, this is protocol specific.

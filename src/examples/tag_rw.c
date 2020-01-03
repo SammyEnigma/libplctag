@@ -1,6 +1,6 @@
 /***************************************************************************
- *   Copyright (C) 2015 by OmanTek                                         *
- *   Author Kyle Hayes  kylehayes@omantek.com                              *
+ *   Copyright (C) 2020 by Kyle Hayes                                      *
+ *   Author Kyle Hayes  kyle.hayes@gmail.com                               *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU Library General Public License as       *
@@ -18,19 +18,6 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-
-/**************************************************************************
- * CHANGE LOG                                                             *
- *                                                                        *
- * 2012-03-14  KRH - Created file.                                        *
- *                                                                        *
- * 2012-07-18  KRH - Updated code for changed library API.                *
- *                                                                        *
- * 2015-12-19  Jake - updated code to decode errors and other changes.    *
- *                                                                        *
- * 2015-12-20  KRH - removed getopt dependency and wrote direct           *
- *                   handling of options, fixed includes.                 *
- **************************************************************************/
 
 /* need this for strdup */
 #define POSIX_C_SOURCE 200809L
@@ -61,16 +48,23 @@
 void usage(void)
 {
     printf( "Usage:\n "
-            "tag_rw -t <type> -p <path> [-w <val>] \n"
+            "tag_rw -t <type> -p <path> [-w <val>] [-d <lvl>] \n"
             "  -t <type> - type is one of 'uint8', 'sint8', 'uint16', 'sint16', \n "
             "              'uint32', 'sint32', or 'real32'.  The type is the type\n"
             "              of the data to be read/written to the named tag.  The\n"
             "              types starting with 'u' are unsigned and with 's' are signed.\n"
             "              For floating point, use 'real32'.  \n"
             "  -p <path> - The path to the device containing the named data.\n"
-            "  -w <val>  - The value to write.  Must be formatted appropriately\n"
-            "              for the data type.\n"
-            "\n"
+			"  -w <val>  - The value to write.  Must be formatted appropriately\n"
+			"              for the data type.  Optional.\n"
+			"  -d <lvl>  - Set the debug level.   Values 1-5.\n"
+			"              1 - output debug info only on fatal errors.\n"
+			"              2 - output debug info for warnings and errors.\n"
+			"              3 - output debug info for informative messages, warnings and errors..\n"
+			"              4 - output debug info for detailed status messages, informative messages, warnings and errors.\n"
+			"              5 - turn on all debugging output.  Not recommended.\n"
+			"              This field is optional.\n"
+			"\n"
             "Example: tag_rw -t uint32 -p 'protocol=ab_eip&gateway=10.206.1.27&path=1,0&cpu=LGX&elem_size=4&elem_count=200&name=pcomm_test_dint_array'\n"
             "Note: Use double quotes \"\" for the path string in Windows.\n");
 }
@@ -81,6 +75,7 @@ void usage(void)
 static int data_type = 0;
 static char *write_str = NULL;
 static char *path = NULL;
+static int debug_level = PLCTAG_DEBUG_NONE;
 
 void parse_args(int argc, char **argv)
 {
@@ -140,7 +135,24 @@ void parse_args(int argc, char **argv)
                 usage();
                 exit(1);
             }
-        } else {
+		} else if (!strcmp(argv[i], "-d")) {
+			i++;
+			if (i < argc) {
+				debug_level = atoi(argv[i]);
+
+				if (debug_level <= PLCTAG_DEBUG_NONE || debug_level > PLCTAG_DEBUG_SPEW) {
+					printf("ERROR: Debug level must be between 1 and 5, inclusive.\n");
+					usage();
+					exit(1);
+				}
+
+				plc_tag_set_debug_level(debug_level);
+			} else {
+				printf("ERROR: you must have a debug level after -d\n");
+				usage();
+				exit(1);
+			}
+		} else {
             /* something unexpected */
             usage();
             exit(1);
@@ -162,6 +174,15 @@ int main(int argc, char **argv)
     int rc;
 
     parse_args(argc, argv);
+
+	/* output version number of the library if the debug level is high enough. */
+	if (debug_level >= PLCTAG_DEBUG_INFO) {
+		int ver_temp = plc_tag_get_lib_version();
+		int ver_maj = (ver_temp >> 16) & 0xFF;
+		int ver_min = (ver_temp >> 8) & 0xFF;
+		int ver_patch = ver_temp & 0xFF;
+		printf("tag_rw using library version %d.%d.%d.\n", ver_maj, ver_min, ver_patch);
+	}
 
     /* check arguments */
     if(!path || !data_type) {

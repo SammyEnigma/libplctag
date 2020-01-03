@@ -174,8 +174,11 @@ if (CMAKE_C_COMPILER_ID STREQUAL "MSVC")
         set(BASE_C_FLAGS "${BASE_FLAGS} /c")
     endif()
 
-    set(STATIC_COMPILE_FLAGS "PUBLIC/PRIVATE /MT")
-    set(STATIC_LINK_FLAGS "PUBLIC/PRIVATE /INCREMENTAL:NO /NODEFAULTLIB:MSVCRT")
+    #set(STATIC_COMPILE_FLAGS "/MT")
+    #set(STATIC_LINK_FLAGS "/MT:UCRT /INCREMENTAL:NO /NODEFAULTLIB:MSVCCRT")
+
+    set(STATIC_COMPILE_FLAGS "")
+    set(STATIC_LINK_FLAGS "")
 else()
     #set(BASE_C_FLAGS "${BASE_FLAGS} -std=c99 -Wc++-compat ")
     set(BASE_C_FLAGS "${BASE_FLAGS} -std=c99")
@@ -249,34 +252,35 @@ ENDFOREACH()
 # shared library
 add_library(plctag_dyn SHARED ${libplctag_SRCS} )
 
-# static library
-add_library(plctag_static STATIC ${libplctag_SRCS} )
-
 # set various properties on them
 set_target_properties(plctag_dyn PROPERTIES SOVERSION "${libplctag_VERSION_MAJOR}.${libplctag_VERSION_MINOR}" OUTPUT_NAME "plctag")
-set_target_properties(plctag_static PROPERTIES VERSION "${libplctag_VERSION_MAJOR}.${libplctag_VERSION_MINOR}" OUTPUT_NAME "plctag")
 
 if(BASE_LINK_FLAGS)
     set_target_properties(plctag_dyn PROPERTIES LINK_FLAGS "${BASE_LINK_FLAGS}")
-    set_target_properties(plctag_static PROPERTIES LINK_FLAGS "${BASE_LINK_FLAGS}")
 endif()
 
+if(UNIX)
+	# static library
+	add_library(plctag_static STATIC ${libplctag_SRCS} )
+	set_target_properties(plctag_static PROPERTIES VERSION "${libplctag_VERSION_MAJOR}.${libplctag_VERSION_MINOR}" OUTPUT_NAME "plctag")
+    set_target_properties(plctag_static PROPERTIES LINK_FLAGS "${BASE_LINK_FLAGS}")
 
-#if(THREADS_HAVE_PTHREAD_ARG)
-#  set_property(TARGET plctag_dyn PROPERTY COMPILE_OPTIONS "-pthread")
-#  set_property(TARGET plctag_dyn PROPERTY INTERFACE_COMPILE_OPTIONS "-pthread")
-#endif()
+	set(tool_lib "plctag_static")
+elseif(WIN32)
+	set(tool_lib "plctag_dyn")
+endif()
 
 # make sure we link with the threading library.
 if (UNIX)
     if(CMAKE_THREAD_LIBS_INIT)
+      target_link_libraries(plctag_dyn "${CMAKE_THREAD_LIBS_INIT}")
       target_link_libraries(plctag_static "${CMAKE_THREAD_LIBS_INIT}")
     endif()
 endif()
 
 # Windows needs to link the library to the WINSOCK library
 if (WIN32)
-    target_link_libraries(plctag_static ws2_32)
+    target_link_libraries(plctag_dyn ws2_32)
 endif()
 
 # add the examples and tests
@@ -335,7 +339,7 @@ if (UNIX)
                            tag_rw )
 
     set ( example_PROG_UTIL utils_posix.c )
-    set ( example_LIBRARIES plctag_static pthread )
+    set ( example_LIBRARIES ${tool_lib} pthread )
 
 
 elseif(WIN32)
@@ -353,7 +357,7 @@ elseif(WIN32)
                            tag_rw )
 
     set ( example_PROG_UTIL utils_windows.c)
-    set ( example_LIBRARIES plctag_static ws2_32 )
+    set ( example_LIBRARIES ${tool_lib} ws2_32 )
 endif()
 
 # set the compile flags for the utilities file.
@@ -364,7 +368,10 @@ foreach ( example ${example_PROGRAMS} )
     set_source_files_properties("${example_SRC_PATH}/${example}.c" PROPERTIES COMPILE_FLAGS "${C99_FLAGS} ${BASE_C_FLAGS}" )
     add_executable( ${example} "${example_SRC_PATH}/${example}.c" "${example_SRC_PATH}/${example_PROG_UTIL}" "${example_SRC_PATH}/utils.h" )
 
-    set_target_properties(${example} PROPERTIES LINK_FLAGS ${STATIC_LINK_FLAGS} )
+	if(STATIC_LINK_FLAGS)
+		set_target_properties(${example} PROPERTIES LINK_FLAGS ${STATIC_LINK_FLAGS} )
+	endif()
+
     target_link_libraries(${example} ${example_LIBRARIES} )
 
     if(BASE_LINK_FLAGS)
@@ -389,8 +396,14 @@ endif()
 CONFIGURE_FILE("${CMAKE_CURRENT_SOURCE_DIR}/libplctag.pc.in" "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libplctag.pc" @ONLY)
 
 # for installation
-install(TARGETS plctag_dyn DESTINATION lib${LIB_SUFFIX})
-install(TARGETS plctag_static DESTINATION lib${LIB_SUFFIX})
+
+if(UNIX)
+	install(TARGETS plctag_dyn DESTINATION lib${LIB_SUFFIX})
+	install(TARGETS plctag_static DESTINATION lib${LIB_SUFFIX})
+elseif(WIN32)
+	install(TARGETS plctag_dyn DESTINATION lib${LIB_SUFFIX})
+endif()
+
 install(FILES "${lib_SRC_PATH}/libplctag.h" DESTINATION include)
 install(FILES "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libplctag.pc" DESTINATION "lib${LIB_SUFFIX}/pkgconfig")
 

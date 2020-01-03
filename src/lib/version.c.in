@@ -24,4 +24,7 @@
  */
 
 const char *VERSION="@VERSION@";
+const int version_major = @libplctag_VERSION_MAJOR@;
+const int version_minor = @libplctag_VERSION_MINOR@;
+const int version_patch = @libplctag_VERSION_PATCH@;
 

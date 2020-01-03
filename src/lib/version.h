@@ -25,4 +25,7 @@
  */
 
 extern const char *VERSION;
+extern const int version_major;
+extern const int version_minor;
+extern const int version_patch;
 
