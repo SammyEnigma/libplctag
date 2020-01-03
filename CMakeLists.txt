@@ -174,6 +174,7 @@ if (CMAKE_C_COMPILER_ID STREQUAL "MSVC")
         set(BASE_C_FLAGS "${BASE_FLAGS} /c")
     endif()
 
+<<<<<<< HEAD
     # set static compilation and linking flags
     # skipped on Windows for now
 
@@ -182,6 +183,10 @@ if (CMAKE_C_COMPILER_ID STREQUAL "MSVC")
 
     set(STATIC_COMPILE_FLAGS "")
     set(STATIC_LINK_FLAGS "")
+=======
+    set(STATIC_COMPILE_FLAGS "PUBLIC/PRIVATE /MT")
+    set(STATIC_LINK_FLAGS "PUBLIC/PRIVATE /INCREMENTAL:NO /NODEFAULTLIB:MSVCRT")
+>>>>>>> Adding code to force static linking for most examples and to create versioned dynamic and static libraries.
 else()
     #set(BASE_C_FLAGS "${BASE_FLAGS} -std=c99 -Wc++-compat ")
     set(BASE_C_FLAGS "${BASE_FLAGS} -std=c99")
@@ -283,14 +288,21 @@ endif()
 # make sure we link with the threading library.
 if (UNIX)
     if(CMAKE_THREAD_LIBS_INIT)
+<<<<<<< HEAD
       target_link_libraries(plctag_dyn "${CMAKE_THREAD_LIBS_INIT}")
+=======
+>>>>>>> Adding code to force static linking for most examples and to create versioned dynamic and static libraries.
       target_link_libraries(plctag_static "${CMAKE_THREAD_LIBS_INIT}")
     endif()
 endif()
 
 # Windows needs to link the library to the WINSOCK library
 if (WIN32)
+<<<<<<< HEAD
     target_link_libraries(plctag_dyn ws2_32)
+=======
+    target_link_libraries(plctag_static ws2_32)
+>>>>>>> Adding code to force static linking for most examples and to create versioned dynamic and static libraries.
 endif()
 
 # add the examples and tests
@@ -306,6 +318,23 @@ if (UNIX)
     add_executable(test_hashtable ${test_hashtable_FILES} )
     target_link_libraries(test_hashtable plctag pthread)
 >>>>>>> Adding code to force static linking for most examples and to create versioned dynamic and static libraries.
+
+# regression tests
+#    set ( regression_test_FILES "${test_SRC_PATH}/regression/test.c"
+#                                "${test_SRC_PATH}/regression/logix.c"
+#                                "${test_SRC_PATH}/regression/logix.h"
+#                                "${test_SRC_PATH}/regression/packet.c"
+#                                "${test_SRC_PATH}/regression/packet.h"
+#                                "${test_SRC_PATH}/regression/util.c"
+#                                "${test_SRC_PATH}/regression/util.h" )
+#
+#
+#    foreach ( file ${regression_test_FILES} )
+#        set_source_files_properties("${file}" PROPERTIES COMPILE_FLAGS "${BASE_FLAGS} -std=c11")
+#    endforeach ( file )
+#
+#    add_executable ( ab_regression ${regression_test_FILES} )
+#    target_link_libraries ( ab_regression plctag_dyn pthread )
 
 # regression tests
 #    set ( regression_test_FILES "${test_SRC_PATH}/regression/test.c"
@@ -349,7 +378,11 @@ if (UNIX)
                            tag_rw )
 
     set ( example_PROG_UTIL utils_posix.c )
+<<<<<<< HEAD
     set ( example_LIBRARIES ${tool_lib} pthread )
+=======
+    set ( example_LIBRARIES plctag_static pthread )
+>>>>>>> Adding code to force static linking for most examples and to create versioned dynamic and static libraries.
 
 
 elseif(WIN32)
@@ -367,7 +400,11 @@ elseif(WIN32)
                            tag_rw )
 
     set ( example_PROG_UTIL utils_windows.c)
+<<<<<<< HEAD
     set ( example_LIBRARIES ${tool_lib} ws2_32 )
+=======
+    set ( example_LIBRARIES plctag_static ws2_32 )
+>>>>>>> Adding code to force static linking for most examples and to create versioned dynamic and static libraries.
 endif()
 
 # set the compile flags for the utilities file.
@@ -377,6 +414,8 @@ set_source_files_properties("${example_SRC_PATH}/${example_PROG_UTIL}" PROPERTIE
 foreach ( example ${example_PROGRAMS} )
     set_source_files_properties("${example_SRC_PATH}/${example}.c" PROPERTIES COMPILE_FLAGS "${C99_FLAGS} ${BASE_C_FLAGS}" )
     add_executable( ${example} "${example_SRC_PATH}/${example}.c" "${example_SRC_PATH}/${example_PROG_UTIL}" "${example_SRC_PATH}/utils.h" )
+
+    set_target_properties(${example} PROPERTIES LINK_FLAGS ${STATIC_LINK_FLAGS} )
     target_link_libraries(${example} ${example_LIBRARIES} )
 
     if(BASE_LINK_FLAGS)
@@ -401,6 +440,7 @@ endif()
 CONFIGURE_FILE("${CMAKE_CURRENT_SOURCE_DIR}/libplctag.pc.in" "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libplctag.pc" @ONLY)
 
 # for installation
+<<<<<<< HEAD
 if(UNIX)
 	install(TARGETS plctag_dyn DESTINATION lib${LIB_SUFFIX})
 	install(TARGETS plctag_static DESTINATION lib${LIB_SUFFIX})
@@ -408,6 +448,10 @@ elseif(WIN32)
 	install(TARGETS plctag_dyn DESTINATION lib${LIB_SUFFIX})
 endif()
 
+=======
+install(TARGETS plctag_dyn DESTINATION lib${LIB_SUFFIX})
+install(TARGETS plctag_static DESTINATION lib${LIB_SUFFIX})
+>>>>>>> Adding code to force static linking for most examples and to create versioned dynamic and static libraries.
 install(FILES "${lib_SRC_PATH}/libplctag.h" DESTINATION include)
 install(FILES "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libplctag.pc" DESTINATION "lib${LIB_SUFFIX}/pkgconfig")
 
