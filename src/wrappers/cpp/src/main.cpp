@@ -74,7 +74,7 @@ int main (void)
     int ver_min = (ver_raw >> 8) & 0xFF;
     int ver_patch = ver_raw & 0xFF;
 
-	INFO << "Program Started, using version " << ver_maj << "." << ver_min << "." << ver_patch;
+	INFO << "Program Started, using libplctag version " << ver_maj << "." << ver_min << "." << ver_patch;
 
 
 
