@@ -413,7 +413,6 @@ endif()
 CONFIGURE_FILE("${CMAKE_CURRENT_SOURCE_DIR}/libplctag.pc.in" "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libplctag.pc" @ONLY)
 
 # for installation
-
 if(UNIX)
 	install(TARGETS plctag_dyn DESTINATION lib${LIB_SUFFIX})
 	install(TARGETS plctag_static DESTINATION lib${LIB_SUFFIX})
