@@ -174,6 +174,9 @@ if (CMAKE_C_COMPILER_ID STREQUAL "MSVC")
         set(BASE_C_FLAGS "${BASE_FLAGS} /c")
     endif()
 
+    # set static compilation and linking flags
+    # skipped on Windows for now
+
     #set(STATIC_COMPILE_FLAGS "/MT")
     #set(STATIC_LINK_FLAGS "/MT:UCRT /INCREMENTAL:NO /NODEFAULTLIB:MSVCCRT")
 
@@ -267,6 +270,8 @@ if(UNIX)
 
 	set(tool_lib "plctag_static")
 elseif(WIN32)
+    # skipping static lib on Windows
+
 	set(tool_lib "plctag_dyn")
 endif()
 
