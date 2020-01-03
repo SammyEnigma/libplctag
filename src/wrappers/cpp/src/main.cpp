@@ -76,6 +76,7 @@ int main (void)
 
 	INFO << "Program Started, using libplctag version " << ver_maj << "." << ver_min << "." << ver_patch;
 
+
 	loop:
 
 	try
