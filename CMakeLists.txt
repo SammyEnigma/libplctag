@@ -345,8 +345,7 @@ if (UNIX)
                            test_reconnect
                            test_special
                            toggle_bool
-                           write_string
-                           tag_rw )
+                           write_string )
 
     set ( example_PROG_UTIL utils_posix.c )
     set ( example_LIBRARIES ${tool_lib} pthread )
