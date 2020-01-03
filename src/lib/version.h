@@ -35,7 +35,7 @@
 #define LIB_VER_PATCH (0)
 
 extern const char *VERSION;
-extern const uint64_t version_major;
-extern const uint64_t version_minor;
-extern const uint64_t version_patch;
+extern const int version_major;
+extern const int version_minor;
+extern const int version_patch;
 

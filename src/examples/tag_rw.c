@@ -191,6 +191,15 @@ int main(int argc, char **argv)
     print_ver();
     parse_args(argc, argv);
 
+	/* output version number of the library if the debug level is high enough. */
+	if (debug_level >= PLCTAG_DEBUG_INFO) {
+		int ver_temp = plc_tag_get_lib_version();
+		int ver_maj = (ver_temp >> 16) & 0xFF;
+		int ver_min = (ver_temp >> 8) & 0xFF;
+		int ver_patch = ver_temp & 0xFF;
+		printf("tag_rw using library version %d.%d.%d.\n", ver_maj, ver_min, ver_patch);
+	}
+
     /* check arguments */
     if(!path || !data_type) {
         usage();

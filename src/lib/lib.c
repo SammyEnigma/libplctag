@@ -317,32 +317,24 @@ LIB_EXPORT void plc_tag_set_debug_level(int debug_level)
 
 
 /*
- * Check that the library supports the required API version.
+ * return the library version as an encoded 32-bit integer.
  *
- * The version is passed as an encoded integer.   The encoding is the same
- * as for plc_tag_get_lib_version().
+ * The version is encoded in the lower three bytes of the return value.
+ * The bytes are the patch version, the minor version and the major version.
  *
- * PLCTAG_STATUS_OK is returned if the version matches.  If it does not,
- * PLCTAG_ERR_UNSUPPORTED is returned.
+ * 0x00020104 is version 2.1.4
  */
 
-LIB_EXPORT int plc_tag_check_lib_version(int req_major, int req_minor, int req_patch)
+LIB_EXPORT int32_t plc_tag_get_lib_version(void)
 {
-    uint64_t lib_encoded_version = ((uint64_t)version_major) << 32
-                                 + ((uint64_t)version_minor) << 16
-                                  + (uint64_t)version_patch;
+	int32_t result = 0;
 
-    uint64_t req_encoded_req = ((uint64_t)req_major) << 32
-                             + ((uint64_t)req_minor) << 16
-                              + (uint64_t)req_patch;
+	result = (((int32_t)version_major) << 16) +
+		(((int32_t)version_minor) << 8) +
+		(int32_t)version_patch;
 
-    if(lib_encoded_version >= req_encoded_version) {
-        return PLCTAG_STATUS_OK;
-    } else {
-        return PLCTAG_ERR_UNSUPPORTED;
-    }
+	return result;
 }
-
 
 
 
