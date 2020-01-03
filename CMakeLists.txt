@@ -254,7 +254,6 @@ ENDFOREACH()
 
 # shared library
 add_library(plctag_dyn SHARED ${libplctag_SRCS} )
-<<<<<<< HEAD
 
 # set various properties on them
 set_target_properties(plctag_dyn PROPERTIES SOVERSION "${libplctag_VERSION_MAJOR}.${libplctag_VERSION_MINOR}" OUTPUT_NAME "plctag")
@@ -275,41 +274,23 @@ elseif(WIN32)
 
 	set(tool_lib "plctag_dyn")
 endif()
-=======
-
-# static library
-add_library(plctag_static STATIC ${libplctag_SRCS} )
-
-# set various properties on them
-set_target_properties(plctag_dyn PROPERTIES SOVERSION "${libplctag_VERSION_MAJOR}.${libplctag_VERSION_MINOR}" OUTPUT_NAME "plctag")
-set_target_properties(plctag_static PROPERTIES VERSION "${libplctag_VERSION_MAJOR}.${libplctag_VERSION_MINOR}" OUTPUT_NAME "plctag")
-
-
 
 #if(THREADS_HAVE_PTHREAD_ARG)
 #  set_property(TARGET plctag_dyn PROPERTY COMPILE_OPTIONS "-pthread")
 #  set_property(TARGET plctag_dyn PROPERTY INTERFACE_COMPILE_OPTIONS "-pthread")
 #endif()
->>>>>>> Adding code to force static linking for most examples and to create versioned dynamic and static libraries.
 
 # make sure we link with the threading library.
 if (UNIX)
     if(CMAKE_THREAD_LIBS_INIT)
-<<<<<<< HEAD
       target_link_libraries(plctag_dyn "${CMAKE_THREAD_LIBS_INIT}")
-=======
->>>>>>> Adding code to force static linking for most examples and to create versioned dynamic and static libraries.
       target_link_libraries(plctag_static "${CMAKE_THREAD_LIBS_INIT}")
     endif()
 endif()
 
 # Windows needs to link the library to the WINSOCK library
 if (WIN32)
-<<<<<<< HEAD
     target_link_libraries(plctag_dyn ws2_32)
-=======
-    target_link_libraries(plctag_static ws2_32)
->>>>>>> Adding code to force static linking for most examples and to create versioned dynamic and static libraries.
 endif()
 
 # add the examples and tests
