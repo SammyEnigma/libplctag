@@ -60,7 +60,7 @@ void usage(void)
 			"  -d <lvl>  - Set the debug level.   Values 1-5.\n"
 			"              1 - output debug info only on fatal errors.\n"
 			"              2 - output debug info for warnings and errors.\n"
-			"              3 - output debug info for informative messages, warnings and errors..\n"
+			"              3 - output debug info for informative messages, warnings and errors.\n"
 			"              4 - output debug info for detailed status messages, informative messages, warnings and errors.\n"
 			"              5 - turn on all debugging output.  Not recommended.\n"
 			"              This field is optional.\n"
