@@ -28,7 +28,7 @@
 #pragma once
 
 #include <ab/defs.h>
-#include <lib/libplctag.h>
+#include <lib/libplctag2.h>
 #include <lib/tag.h>
 #include <util/vector.h>
 

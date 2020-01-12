@@ -1,8 +1,8 @@
 #include <inttypes.h>
 #include <stdint.h>
+#include "../lib/libplctag2.h"
 #include <stdio.h>
 #include <string.h>
-#include "../lib/libplctag.h"
 #include "utils.h"
 
 #define TIMEOUT_MS (15000) /* a loooooong timeout */

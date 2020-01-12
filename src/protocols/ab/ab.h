@@ -30,7 +30,7 @@
 #define __LIBPLCTAG_AB_H__ 1
 
 
-#include <lib/libplctag.h>
+#include <lib/libplctag2.h>
 #include <util/attr.h>
 
 void ab_teardown(void);

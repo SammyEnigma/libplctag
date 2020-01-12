@@ -24,7 +24,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
-#include "../lib/libplctag.h"
+#include "../lib/libplctag2.h"
 #include "utils.h"
 
 

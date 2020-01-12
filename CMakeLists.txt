@@ -197,7 +197,7 @@ CONFIGURE_FILE("${lib_SRC_PATH}/version.c.in" "${lib_SRC_PATH}/version.c" @ONLY)
 # set up the library sources
 set ( libplctag_SRCS "${lib_SRC_PATH}/init.c"
                      "${lib_SRC_PATH}/init.h"
-                     "${lib_SRC_PATH}/libplctag.h"
+                     "${lib_SRC_PATH}/libplctag2.h"
                      "${lib_SRC_PATH}/lib.c"
                      "${lib_SRC_PATH}/tag.h"
                      "${lib_SRC_PATH}/version.h"

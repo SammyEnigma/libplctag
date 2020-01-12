@@ -35,7 +35,7 @@
 #else
     #include <signal.h>
 #endif
-#include "../lib/libplctag.h"
+#include "../lib/libplctag2.h"
 #include "utils.h"
 
 
@@ -69,17 +69,17 @@ BOOL WINAPI CtrlHandler(DWORD fdwCtrlType)
 {
     switch (fdwCtrlType)
     {
-        // Handle the CTRL-C signal. 
+        // Handle the CTRL-C signal.
     case CTRL_C_EVENT:
         done = 1;
         return TRUE;
 
-        // CTRL-CLOSE: confirm that the user wants to exit. 
+        // CTRL-CLOSE: confirm that the user wants to exit.
     case CTRL_CLOSE_EVENT:
         done = 1;
         return TRUE;
 
-        // Pass other signals to the next handler. 
+        // Pass other signals to the next handler.
     case CTRL_BREAK_EVENT:
         done = 1;
         return FALSE;

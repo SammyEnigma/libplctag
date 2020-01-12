@@ -50,7 +50,7 @@
 #include <time.h>
 #include <stdio.h>
 
-#include <lib/libplctag.h>
+#include <lib/libplctag2.h>
 #include <util/debug.h>
 
 

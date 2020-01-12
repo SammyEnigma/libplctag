@@ -22,7 +22,7 @@
 #include <util/debug.h>
 #include <util/attr.h>
 #include <lib/tag.h>
-#include <lib/libplctag.h>
+#include <lib/libplctag2.h>
 #include <lib/version.h>
 #include <system/tag.h>
 #include <ab/ab_common.h>

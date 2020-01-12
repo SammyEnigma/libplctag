@@ -22,7 +22,7 @@
 #include <ctype.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include <lib/libplctag.h>
+#include <lib/libplctag2.h>
 #include <platform.h>
 #include <ab/ab_common.h>
 #include <ab/cip.h>

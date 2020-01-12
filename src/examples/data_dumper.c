@@ -28,7 +28,7 @@
 #include <sys/select.h>
 #include <stdlib.h>
 #include <signal.h>
-#include "../lib/libplctag.h"
+#include "../lib/libplctag2.h"
 #include "utils.h"
 
 

@@ -27,7 +27,7 @@
 #include <stdint.h>
 #include <inttypes.h>
 #include <sys/time.h>
-#include "../lib/libplctag.h"
+#include "../lib/libplctag2.h"
 #include "utils.h"
 
 #define TAG_PATH "protocol=ab_eip&gateway=10.17.45.37&path=1,0&cpu=LGX&elem_size=4&elem_count=1&name=DataIn_Frm_Sched[1]&read_cache_ms=100"

@@ -19,7 +19,7 @@
  ***************************************************************************/
 
 
-#include <lib/libplctag.h>
+#include <lib/libplctag2.h>
 #include <platform.h>
 #include <util/rc.h>
 #include <util/debug.h>

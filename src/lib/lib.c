@@ -24,7 +24,7 @@
 
 #include <limits.h>
 #include <float.h>
-#include <lib/libplctag.h>
+#include <lib/libplctag2.h>
 #include <lib/tag.h>
 #include <lib/init.h>
 #include <lib/version.h>

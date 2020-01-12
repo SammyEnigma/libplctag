@@ -47,7 +47,7 @@
 #include <fcntl.h>
 #include <time.h>
 
-#include <lib/libplctag.h>
+#include <lib/libplctag2.h>
 #include <util/debug.h>
 
 

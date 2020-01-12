@@ -3,7 +3,7 @@
 #include <pthread.h>
 #include <stdint.h>
 #include <sys/time.h>
-#include "../lib/libplctag.h"
+#include "../lib/libplctag2.h"
 #include "utils.h"
 
 #define TAG_PATH "protocol=ab_eip&gateway=10.206.1.39&path=1,2,A:27:1&cpu=plc5&elem_count=1&elem_size=2&name=N7:0&debug=4"
