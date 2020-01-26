@@ -193,7 +193,6 @@ set(BASE_CXX_FLAGS "${BASE_FLAGS}")
 
 # generate version file from CMake info.
 CONFIGURE_FILE("${lib_SRC_PATH}/version.h.in" "${lib_SRC_PATH}/version.h" @ONLY)
-#CONFIGURE_FILE("${lib_SRC_PATH}/version.c.in" "${lib_SRC_PATH}/version.c" @ONLY)
 
 # set up the library sources
 set ( libplctag_SRCS "${lib_SRC_PATH}/init.c"
