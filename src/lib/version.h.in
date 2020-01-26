@@ -27,10 +27,10 @@
  * checking them against a dynamically linked library.
  */
 
-#define LIB_VER_STRING "2.1.0"
-#define LIB_VER_MAJOR (2)
-#define LIB_VER_MINOR (1)
-#define LIB_VER_PATCH (0)
+#define LIB_VER_STRING "@VERSION@"
+#define LIB_VER_MAJOR (@libplctag_VERSION_MAJOR@)
+#define LIB_VER_MINOR (@libplctag_VERSION_MINOR@)
+#define LIB_VER_PATCH (@libplctag_VERSION_PATCH@)
 
 extern const char *VERSION;
 extern const int version_major;

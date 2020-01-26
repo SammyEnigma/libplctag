@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2020 by Kyle Hayes                                      *
+ *   Copyright (C) 2019 by Kyle Hayes                                      *
  *   Author Kyle Hayes  kyle.hayes@gmail.com                               *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -18,7 +18,7 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#pragma once
+#include "version.h"
 
 /*
  * The library version in various ways.
@@ -27,13 +27,12 @@
  * checking them against a dynamically linked library.
  */
 
-#define LIB_VER_STRING "2.1.0"
+const char *VERSION="2.1.0";
+
 #define LIB_VER_MAJOR (2)
 #define LIB_VER_MINOR (1)
 #define LIB_VER_PATCH (0)
 
-extern const char *VERSION;
-extern const int version_major;
-extern const int version_minor;
-extern const int version_patch;
-
+const int version_major = LIB_VER_MAJOR;
+const int version_minor = LIB_VER_MINOR;
+const int version_patch = LIB_VER_PATCH;

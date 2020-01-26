@@ -116,11 +116,6 @@ void lib_teardown(void)
     pdebug(DEBUG_INFO, "Destroying tag hashtable.");
     hashtable_destroy(tags);
 
-//    pdebug(DEBUG_INFO,"Destroying global library mutex.");
-//    if(global_library_mutex) {
-//        mutex_destroy((mutex_p*)&global_library_mutex);
-//    }
-
     pdebug(DEBUG_INFO,"Done.");
 }
 
@@ -340,6 +335,47 @@ LIB_EXPORT int32_t plc_tag_get_lib_version(void)
 
 	return result;
 }
+
+
+
+
+/*
+ * Check that the library supports the required API version.
+ *
+ * The version is passed as an encoded integer.   The encoding is the same
+ * as for plc_tag_get_lib_version().
+ *
+ * PLCTAG_STATUS_OK is returned if the version matches.  If it does not, PLCTAG_ERR_UNSUPPORTED
+ * is returned.
+ */
+
+LIB_EXPORT int plc_tag_check_version(int32_t encoded_version)
+{
+    int patch = (encoded_version & 0xFF);
+    int minor = ((encoded_version >> 8) & 0xFF);
+    int major = ((encoded_version >> 16) & 0xFF);
+
+    if(major != version_major) {
+        pdebug(DEBUG_WARN, "Major version %d does not match requested version %d!", version_major, major);
+        return PLCTAG_ERR_UNSUPPORTED;
+    }
+
+    if(minor < version_minor) {
+        pdebug(DEBUG_WARN, "Minor version %d does not match requested version %d!", version_minor, minor);
+        return PLCTAG_ERR_UNSUPPORTED;
+    }
+
+    if(minor == version_minor) {
+        /* now we need to check the patch level */
+        if(patch < version_patch) {
+            pdebug(DEBUG_WARN, "Patch version %d does not match requested version %d!", version_patch, patch);
+            return PLCTAG_ERR_UNSUPPORTED;
+        }
+    }
+
+    return PLCTAG_STATUS_OK;
+}
+
 
 
 
