@@ -74,6 +74,7 @@ void usage(void)
 			"\n"
             "Example: tag_rw -t uint32 -p 'protocol=ab_eip&gateway=10.206.1.27&path=1,0&cpu=LGX&elem_size=4&elem_count=200&name=pcomm_test_dint_array'\n"
             "Note: Use double quotes \"\" for the path string in Windows.\n");
+    printf( "   Program built with library version %s and using library version %s.\n", LIB_VER_STRING, VERSION);
 }
 
 
