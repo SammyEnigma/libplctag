@@ -168,7 +168,7 @@ extern "C" {
      *
      */
 
-    LIB_EXPORT int plc_tag_check_version(int32_t encoded_version);
+    LIB_EXPORT int plc_tag_check_lib_version(int32_t encoded_version);
 
 
 

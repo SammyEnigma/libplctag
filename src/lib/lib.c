@@ -349,7 +349,7 @@ LIB_EXPORT int32_t plc_tag_get_lib_version(void)
  * is returned.
  */
 
-LIB_EXPORT int plc_tag_check_version(int32_t encoded_version)
+LIB_EXPORT int plc_tag_check_lib_version(int32_t encoded_version)
 {
     int patch = (encoded_version & 0xFF);
     int minor = ((encoded_version >> 8) & 0xFF);
