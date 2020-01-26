@@ -74,7 +74,6 @@ void usage(void)
 			"\n"
             "Example: tag_rw -t uint32 -p 'protocol=ab_eip&gateway=10.206.1.27&path=1,0&cpu=LGX&elem_size=4&elem_count=200&name=pcomm_test_dint_array'\n"
             "Note: Use double quotes \"\" for the path string in Windows.\n");
-    printf( "   Program built with library version %s and using library version %s.\n", LIB_VER_STRING, VERSION);
 }
 
 
@@ -191,15 +190,6 @@ int main(int argc, char **argv)
 
     print_ver();
     parse_args(argc, argv);
-
-	/* output version number of the library if the debug level is high enough. */
-	if (debug_level >= PLCTAG_DEBUG_INFO) {
-		int ver_temp = plc_tag_get_lib_version();
-		int ver_maj = (ver_temp >> 16) & 0xFF;
-		int ver_min = (ver_temp >> 8) & 0xFF;
-		int ver_patch = ver_temp & 0xFF;
-		printf("tag_rw using library version %d.%d.%d.\n", ver_maj, ver_min, ver_patch);
-	}
 
     /* check arguments */
     if(!path || !data_type) {
