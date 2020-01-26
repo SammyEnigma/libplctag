@@ -23,6 +23,8 @@
 #include "../lib/libplctag2.h"
 #include "utils.h"
 
+#define REQUIRED_VERSION (0x00020100)
+
 #define TAG_CREATE_TIMEOUT (100)
 
 void test_version(void)
@@ -108,6 +110,11 @@ void test_debug(void)
 
 int main()
 {
+    /* check the library version. */
+    if(plc_tag_check_lib_version(REQUIRED_VERSION) != PLCTAG_STATUS_OK) {
+        fprintf(stderr, "Required library version %x not available, library is version %x!", REQUIRED_VERSION, plc_tag_get_lib_version());
+    }
+
     test_version();
 
     test_debug();

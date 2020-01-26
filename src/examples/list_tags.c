@@ -27,6 +27,7 @@
 #include "../lib/libplctag2.h"
 #include "utils.h"
 
+#define REQUIRED_VERSION (0x00020100)
 
 #define TAG_STRING_SIZE (200)
 #define TIMEOUT_MS (5000)
@@ -152,6 +153,11 @@ int main(int argc, char **argv)
 {
     int32_t tag;
     struct program_entry_s *programs = NULL;
+
+    /* check the library version. */
+    if(plc_tag_check_lib_version(REQUIRED_VERSION) != PLCTAG_STATUS_OK) {
+        fprintf(stderr, "Required library version %x not available, library is version %x!", REQUIRED_VERSION, plc_tag_get_lib_version());
+    }
 
     if(argc < 3) {
         usage();

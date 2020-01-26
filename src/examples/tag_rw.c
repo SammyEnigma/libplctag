@@ -32,6 +32,9 @@
 #include "utils.h"
 
 
+#define REQUIRED_VERSION (0x00020100)
+
+
 #define PLC_LIB_BIT     (0x101)
 #define PLC_LIB_UINT8   (0x108)
 #define PLC_LIB_SINT8   (0x208)
@@ -44,7 +47,10 @@
 
 #define DATA_TIMEOUT 5000
 
-
+void print_ver(void)
+{
+    printf( "tag_rw program built with library version %s and using library version %s.\n", LIB_VER_STRING, VERSION);
+}
 
 void usage(void)
 {
@@ -68,7 +74,6 @@ void usage(void)
 			"\n"
             "Example: tag_rw -t uint32 -p 'protocol=ab_eip&gateway=10.206.1.27&path=1,0&cpu=LGX&elem_size=4&elem_count=200&name=pcomm_test_dint_array'\n"
             "Note: Use double quotes \"\" for the path string in Windows.\n");
-    printf( "   Program built with library version %s and using library version %s.\n", LIB_VER_STRING, VERSION);
 }
 
 
@@ -82,12 +87,8 @@ static int debug_level = PLCTAG_DEBUG_NONE;
 
 void check_version(void)
 {
-    int32_t encoded_version = (version_major << 16)
-                            + (version_minor << 8)
-                            + version_patch;
-
-    if(plc_tag_check_version(encoded_version) != PLCTAG_STATUS_OK) {
-        printf("Library version %s requested, but found version %s!\n", LIB_VER_STRING, VERSION);
+    if(plc_tag_check_lib_version(REQUIRED_VERSION) != PLCTAG_STATUS_OK) {
+        printf("Library version %x requested, but found version %x!\n", REQUIRED_VERSION, plc_tag_get_lib_version());
     }
 }
 
@@ -187,16 +188,8 @@ int main(int argc, char **argv)
     int i;
     int rc;
 
+    print_ver();
     parse_args(argc, argv);
-
-	/* output version number of the library if the debug level is high enough. */
-	if (debug_level >= PLCTAG_DEBUG_INFO) {
-		int ver_temp = plc_tag_get_lib_version();
-		int ver_maj = (ver_temp >> 16) & 0xFF;
-		int ver_min = (ver_temp >> 8) & 0xFF;
-		int ver_patch = ver_temp & 0xFF;
-		printf("tag_rw using library version %d.%d.%d.\n", ver_maj, ver_min, ver_patch);
-	}
 
     /* check arguments */
     if(!path || !data_type) {

@@ -23,6 +23,7 @@
 #include "../lib/libplctag2.h"
 #include "utils.h"
 
+#define REQUIRED_VERSION (0x00020100)
 
 #define TAG_PATH "protocol=ab-eip&gateway=192.168.56.121&path=1,5&cpu=LGX&elem_size=4&elem_count=200&name=TestBigArray&debug=4"
 #define ELEM_COUNT 200
@@ -35,6 +36,11 @@ int main()
     int32_t tag = 0;
     int rc;
     int i;
+
+    /* check the library version. */
+    if(plc_tag_check_lib_version(REQUIRED_VERSION) != PLCTAG_STATUS_OK) {
+        fprintf(stderr, "Required library version %x not available, library is version %x!", REQUIRED_VERSION, plc_tag_get_lib_version());
+    }
 
     /* create the tag */
     tag = plc_tag_create(TAG_PATH, DATA_TIMEOUT);

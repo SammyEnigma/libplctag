@@ -5,6 +5,8 @@
 #include <string.h>
 #include "utils.h"
 
+#define REQUIRED_VERSION (0x00020100)
+
 #define TIMEOUT_MS (15000) /* a loooooong timeout */
 
 #define NEW_BARCODE "protocol=ab_eip&gateway=10.206.1.40&path=1,4&cpu=lgx&elem_size=1&elem_count=1&name=new_barcode"
@@ -25,6 +27,12 @@ int main(int argc, const char **argv)
 
     (void)argc;
     (void)argv;
+
+    /* check the library version. */
+    if(plc_tag_check_lib_version(REQUIRED_VERSION) != PLCTAG_STATUS_OK) {
+        fprintf(stderr, "Required library version %x not available, library is version %x!", REQUIRED_VERSION, plc_tag_get_lib_version());
+    }
+
 
     while(1) {
         int64_t new_time;

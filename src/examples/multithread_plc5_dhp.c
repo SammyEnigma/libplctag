@@ -6,6 +6,8 @@
 #include "../lib/libplctag2.h"
 #include "utils.h"
 
+#define REQUIRED_VERSION (0x00020100)
+
 #define TAG_PATH "protocol=ab_eip&gateway=10.206.1.39&path=1,2,A:27:1&cpu=plc5&elem_count=1&elem_size=2&name=N7:0&debug=4"
 #define ELEM_COUNT 1
 #define ELEM_SIZE 2
@@ -90,6 +92,11 @@ int main(int argc, char **argv)
     pthread_t thread[MAX_THREADS];
     int num_threads;
     int thread_id = 0;
+
+    /* check the library version. */
+    if(plc_tag_check_lib_version(REQUIRED_VERSION) != PLCTAG_STATUS_OK) {
+        fprintf(stderr, "Required library version %x not available, library is version %x!", REQUIRED_VERSION, plc_tag_get_lib_version());
+    }
 
     if(argc != 2) {
         fprintf(stderr,"ERROR: Must provide number of threads to run (between 1 and 300) argc=%d!\n",argc);

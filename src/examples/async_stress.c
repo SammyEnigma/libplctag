@@ -39,6 +39,8 @@
 #include "utils.h"
 
 
+#define REQUIRED_VERSION (0x00020100)
+
 //#define TAG_ATTRIBS "protocol=ab_eip&gateway=10.206.1.40&path=1,4&cpu=LGX&use_connected_msg=0&elem_size=4&elem_count=1&name=TestBigArray[0]&debug=4"
 //#define TAG_ATTRIBS "protocol=ab_eip&gateway=10.206.1.38&cpu=PLC5&elem_size=4&elem_count=1&name=F8:0&debug=4"
 #define NUM_TAGS  (10)
@@ -163,6 +165,12 @@ int main(int argc, char **argv)
     int64_t end = 0;
     int tags_done = 0;
     int creation_failed = 0;
+
+    /* check the library version. */
+    if(plc_tag_check_lib_version(REQUIRED_VERSION) != PLCTAG_STATUS_OK) {
+        fprintf(stderr, "Required library version %x not available, library is version %x!", REQUIRED_VERSION, plc_tag_get_lib_version());
+    }
+
 
     /* check the command line arguments */
     if(argc < 2 || !argv[1] || strlen(argv[1]) == 0) {
