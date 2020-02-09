@@ -33,7 +33,7 @@ public class Tag implements Library {
 static {
         Native.register(Tag.JNA_LIBRARY_NAME);
 
-        if(!Tag.checkLibraryVersion(0x00020100)) {
+        if(!Tag.checkLibraryVersion(2, 1, 0)) {
             System.err.printLn("Library must be compatible with version 2.1.0!");
             System.abort();
         }
@@ -116,52 +116,43 @@ static {
 
 
 
-    /**
-     * return the library version as an encoded 32-bit integer.
-     *
-     * The version is encoded in the lower three bytes of the return value.
-     * The bytes are the patch version, the minor version and the major version.
-     *
-     * 0x00020104 is version 2.1.4
-     */
-
-    public static int getLibraryVersion() {
-        return Tag.plc_tag_get_lib_version();
-    }
-
-
-    /**
+    /*
      * Check that the library supports the required API version.
      *
-     * The version is passed as an encoded integer.   The encoding is the same
-     * as for plc_tag_get_lib_version().   The lower three bytes of the version
-     * are (from the least significant byte:
+     * The version is passed as integers.   The three arguments are:
      *
+     * ver_major - the major version of the library.  This must be an exact match.
+     * ver_minor - the minor version of the library.   The library must have a minor
+     *             version greater than or equal to the requested version.
      * ver_patch - the patch version of the library.   The library must have a patch
      *             version greater than or equal to the requested version if the minor
      *             version is the same as that requested.   If the library minor version
      *             is greater than that requested, any patch version will be accepted.
-     * ver_minor - the minor version of the library.   The library must have a minor
-     *             version greater than or equal to the requested version.
-     * ver_major - the major version of the library.  This must be an exact match.
      *
-     * PLCTAG_STATUS_OK is returned if the version matches.  If it does not, PLCTAG_ERR_UNSUPPORTED
-     * is returned.
+     * PLCTAG_STATUS_OK is returned if the version is compatible.  If it does not,
+     * PLCTAG_ERR_UNSUPPORTED is returned.
      *
      * Examples:
      *
-     * To match version 2.1.4, pass the encoded integer 0x00020104.
+     * To match version 2.1.4, call plc_tag_check_lib_version(2, 1, 4).
      *
      */
 
-    public static boolean checkLibraryVersion(int encoded_version) {
-        if(Tag.plc_tag_check_lib_version(encoded_version) == Tag.PLCTAG_STATUS_OK) {
+    public static boolean checkLibraryVersion(int req_major, int req_minor, int req_patch) {
+        if(Tag.plc_tag_check_lib_version(req_major, req_minor, req_patch) == Tag.PLCTAG_STATUS_OK) {
             return true;
         } else {
             return false;
         }
     }
 
+
+
+    /*
+     * Public constructor for a tag.
+     *
+     * pass in the same arguments you would pass in for the native C library.
+     */
 
     public Tag(String attributes, int timeout) {
     	this.attributes = attributes;
