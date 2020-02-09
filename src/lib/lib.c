@@ -317,63 +317,30 @@ LIB_EXPORT void plc_tag_set_debug_level(int debug_level)
 
 
 /*
- * return the library version as an encoded 32-bit integer.
- *
- * The version is encoded in the lower three bytes of the return value.
- * The bytes are the patch version, the minor version and the major version.
- *
- * 0x00020104 is version 2.1.4
- */
-
-LIB_EXPORT int32_t plc_tag_get_lib_version(void)
-{
-	int32_t result = 0;
-
-	result = (((int32_t)version_major) << 16) +
-		(((int32_t)version_minor) << 8) +
-		(int32_t)version_patch;
-
-	return result;
-}
-
-
-
-
-/*
  * Check that the library supports the required API version.
  *
  * The version is passed as an encoded integer.   The encoding is the same
  * as for plc_tag_get_lib_version().
  *
- * PLCTAG_STATUS_OK is returned if the version matches.  If it does not, PLCTAG_ERR_UNSUPPORTED
- * is returned.
+ * PLCTAG_STATUS_OK is returned if the version matches.  If it does not,
+ * PLCTAG_ERR_UNSUPPORTED is returned.
  */
 
-LIB_EXPORT int plc_tag_check_lib_version(int32_t encoded_version)
+LIB_EXPORT int plc_tag_check_lib_version(int req_major, int req_minor, int req_patch)
 {
-    int patch = (encoded_version & 0xFF);
-    int minor = ((encoded_version >> 8) & 0xFF);
-    int major = ((encoded_version >> 16) & 0xFF);
+    uint64_t lib_encoded_version = ((uint64_t)version_major) << 32
+                                 + ((uint64_t)version_minor) << 16
+                                  + (uint64_t)version_patch;
 
-    if(major != version_major) {
-        pdebug(DEBUG_WARN, "Major version %d does not match requested version %d!", version_major, major);
+    uint64_t req_encoded_req = ((uint64_t)req_major) << 32
+                             + ((uint64_t)req_minor) << 16
+                              + (uint64_t)req_patch;
+
+    if(lib_encoded_version >= req_encoded_version) {
+        return PLCTAG_STATUS_OK;
+    } else {
         return PLCTAG_ERR_UNSUPPORTED;
     }
-
-    if(minor < version_minor) {
-        pdebug(DEBUG_WARN, "Minor version %d does not match requested version %d!", version_minor, minor);
-        return PLCTAG_ERR_UNSUPPORTED;
-    }
-
-    if(minor == version_minor) {
-        /* now we need to check the patch level */
-        if(patch < version_patch) {
-            pdebug(DEBUG_WARN, "Patch version %d does not match requested version %d!", version_patch, patch);
-            return PLCTAG_ERR_UNSUPPORTED;
-        }
-    }
-
-    return PLCTAG_STATUS_OK;
 }
 
 
