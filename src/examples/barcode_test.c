@@ -5,7 +5,7 @@
 #include <string.h>
 #include "utils.h"
 
-#define REQUIRED_VERSION (0x00020100)
+#define REQUIRED_VERSION 2,1,0
 
 #define TIMEOUT_MS (15000) /* a loooooong timeout */
 
@@ -30,7 +30,7 @@ int main(int argc, const char **argv)
 
     /* check the library version. */
     if(plc_tag_check_lib_version(REQUIRED_VERSION) != PLCTAG_STATUS_OK) {
-        fprintf(stderr, "Required library version %x not available, library is version %x!", REQUIRED_VERSION, plc_tag_get_lib_version());
+        fprintf(stderr, "Required compatible library version %d.%d.%d not available!", REQUIRED_VERSION);
     }
 
 

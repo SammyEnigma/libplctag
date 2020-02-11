@@ -2,7 +2,7 @@
 #include "../lib/libplctag2.h"
 #include "utils.h"
 
-#define REQUIRED_VERSION (0x00020100)
+#define REQUIRED_VERSION 2,1,0
 
 #define TAG_PATH "protocol=ab_eip&gateway=192.168.1.42&path=1,0&cpu=LGX&elem_size=4&elem_count=10&name=myDINTArray"
 #define ELEM_COUNT 10
@@ -24,7 +24,7 @@ int main()
 
     /* check the library version. */
     if(plc_tag_check_lib_version(REQUIRED_VERSION) != PLCTAG_STATUS_OK) {
-        fprintf(stderr, "Required library version %x not available, library is version %x!", REQUIRED_VERSION, plc_tag_get_lib_version());
+        fprintf(stderr, "Required compatible library version %d.%d.%d not available!", REQUIRED_VERSION);
     }
 
     /* create the tag */

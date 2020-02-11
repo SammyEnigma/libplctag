@@ -18,6 +18,7 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
+#include <stdint.h>
 #include "version.h"
 
 /*
@@ -28,11 +29,6 @@
  */
 
 const char *VERSION="2.1.0";
-
-#define LIB_VER_MAJOR (2)
-#define LIB_VER_MINOR (1)
-#define LIB_VER_PATCH (0)
-
-const int version_major = LIB_VER_MAJOR;
-const int version_minor = LIB_VER_MINOR;
-const int version_patch = LIB_VER_PATCH;
+const uint64_t version_major = LIB_VER_MAJOR;
+const uint64_t version_minor = LIB_VER_MINOR;
+const uint64_t version_patch = LIB_VER_PATCH;

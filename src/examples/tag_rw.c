@@ -32,7 +32,7 @@
 #include "utils.h"
 
 
-#define REQUIRED_VERSION (0x00020100)
+#define REQUIRED_VERSION 2,1,0
 
 
 #define PLC_LIB_BIT     (0x101)
@@ -47,10 +47,6 @@
 
 #define DATA_TIMEOUT 5000
 
-void print_ver(void)
-{
-    printf( "tag_rw program built with library version %s and using library version %s.\n", LIB_VER_STRING, VERSION);
-}
 
 void usage(void)
 {
@@ -73,7 +69,7 @@ void usage(void)
 			"              This field is optional.\n"
 			"\n"
             "Example: tag_rw -t uint32 -p 'protocol=ab_eip&gateway=10.206.1.27&path=1,0&cpu=LGX&elem_size=4&elem_count=200&name=pcomm_test_dint_array'\n"
-            "Note: Use double quotes \"\" for the path string in Windows.\n");
+            "Note: Use double quotes \"\" for the attribute string in Windows.\n");
 }
 
 
@@ -88,9 +84,36 @@ static int debug_level = PLCTAG_DEBUG_NONE;
 void check_version(void)
 {
     if(plc_tag_check_lib_version(REQUIRED_VERSION) != PLCTAG_STATUS_OK) {
-        printf("Library version %x requested, but found version %x!\n", REQUIRED_VERSION, plc_tag_get_lib_version());
+        printf("Library version %d.%d.%d requested, but linked library version is not compatible!\n", REQUIRED_VERSION);
     }
 }
+
+
+void print_lib_version(void)
+{
+    int32_t tag = 0;
+    int i, size = 0;
+    char ver[16] = {0,};
+
+    tag = plc_tag_create("make=system&family=library&name=version&debug=4", DATA_TIMEOUT);
+    if(tag < 0) {
+        fprintf(stderr,"ERROR %s: Could not create tag!\n", plc_tag_decode_error(tag));
+        return;
+    }
+
+    size = plc_tag_get_size(tag);
+
+    plc_tag_read(tag, 0);
+
+    for(i=0; i < size && i < (int)sizeof(ver); i++) {
+        ver[i] = (char)plc_tag_get_uint8(tag,i);
+    }
+
+    printf("Library version %s(%d)\n", ver, size);
+
+    plc_tag_destroy(tag);
+}
+
 
 void parse_args(int argc, char **argv)
 {
@@ -188,7 +211,10 @@ int main(int argc, char **argv)
     int i;
     int rc;
 
-    print_ver();
+    check_version();
+
+    print_lib_version();
+
     parse_args(argc, argv);
 
     /* check arguments */

@@ -328,13 +328,14 @@ LIB_EXPORT void plc_tag_set_debug_level(int debug_level)
 
 LIB_EXPORT int plc_tag_check_lib_version(int req_major, int req_minor, int req_patch)
 {
-    uint64_t lib_encoded_version = ((uint64_t)version_major) << 32
-                                 + ((uint64_t)version_minor) << 16
-                                  + (uint64_t)version_patch;
+    /* encode these with 16-bits per version part. */
+    uint64_t lib_encoded_version = (((uint64_t)version_major) << 32u)
+                                 + (((uint64_t)version_minor) << 16u)
+                                   + (uint64_t)version_patch;
 
-    uint64_t req_encoded_req = ((uint64_t)req_major) << 32
-                             + ((uint64_t)req_minor) << 16
-                              + (uint64_t)req_patch;
+    uint64_t req_encoded_version = (((uint64_t)req_major) << 32u)
+                                 + (((uint64_t)req_minor) << 16u)
+                                   + (uint64_t)req_patch;
 
     if(lib_encoded_version >= req_encoded_version) {
         return PLCTAG_STATUS_OK;

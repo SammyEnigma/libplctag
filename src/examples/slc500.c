@@ -2,7 +2,7 @@
 #include "../lib/libplctag2.h"
 #include "utils.h"
 
-#define REQUIRED_VERSION (0x00020100)
+#define REQUIRED_VERSION 2,1,0
 
 #define TAG_PATH "protocol=ab_eip&gateway=10.206.1.26&cpu=SLC&elem_size=2&elem_count=1&name=N7:0&debug=1"
 #define ELEM_COUNT 1
@@ -18,7 +18,7 @@ int main()
 
     /* check the library version. */
     if(plc_tag_check_lib_version(REQUIRED_VERSION) != PLCTAG_STATUS_OK) {
-        fprintf(stderr, "Required library version %x not available, library is version %x!", REQUIRED_VERSION, plc_tag_get_lib_version());
+        fprintf(stderr, "Required compatible library version %d.%d.%d not available!", REQUIRED_VERSION);
     }
 
     /* create the tag */

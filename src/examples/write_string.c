@@ -30,7 +30,7 @@
  * This example shows how to read and write an array of strings.
  */
 
-#define REQUIRED_VERSION (0x00020100)
+#define REQUIRED_VERSION 2,1,0
 
 #define TAG_PATH "protocol=ab_eip&gateway=10.206.1.27&path=1,0&cpu=LGX&elem_size=88&elem_count=6&debug=1&name=Loc_Txt"
 #define ARRAY_1_DIM_SIZE (48)
@@ -46,11 +46,6 @@ int32_t create_tag(const char *path)
 {
     int rc = PLCTAG_STATUS_OK;
     int32_t tag = 0;
-
-    /* check the library version. */
-    if(plc_tag_check_lib_version(REQUIRED_VERSION) != PLCTAG_STATUS_OK) {
-        fprintf(stderr, "Required library version %x not available, library is version %x!", REQUIRED_VERSION, plc_tag_get_lib_version());
-    }
 
     tag = plc_tag_create(path, DATA_TIMEOUT);
 
@@ -132,6 +127,11 @@ int main()
     char str[STRING_DATA_SIZE] = {0};
     int32_t tag = create_tag(TAG_PATH);
     int rc;
+
+    /* check library API version */
+    if(plc_tag_check_lib_version(REQUIRED_VERSION) != PLCTAG_STATUS_OK) {
+        fprintf(stderr, "Required compatible library version %d.%d.%d not available!", REQUIRED_VERSION);
+    }
 
     if(tag < 0) {
         fprintf(stderr,"ERROR %s: Could not create tag!\n", plc_tag_decode_error(tag));
