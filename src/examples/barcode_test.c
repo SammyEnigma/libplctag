@@ -50,7 +50,7 @@ int main(int argc, const char **argv)
         diff_time = new_time - last_read;
         total_time = new_time - first_read;
 
-        printf("Iteration took " PRId64 "ms, total elapsed time is " PRId64 "ms.\n", diff_time, total_time);
+        printf("Iteration took %ums, total elapsed time is %ums.\n", (unsigned int)diff_time, (unsigned int)total_time);
 
         last_read = new_time;
     }
