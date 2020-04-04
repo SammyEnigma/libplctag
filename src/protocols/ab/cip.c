@@ -454,6 +454,7 @@ int parse_symbolic_segment(ab_tag_p tag, const char *name, int *encoded_index, i
     int name_i = *name_index;
     int name_start = name_i;
     int seg_len_index = 0;
+    int seg_len = 0;
 
     pdebug(DEBUG_DETAIL, "Starting with name index=%d and encoded name index=%d.", name_i, encoded_i);
 
@@ -483,6 +484,8 @@ int parse_symbolic_segment(ab_tag_p tag, const char *name, int *encoded_index, i
         name_i++;
     }
 
+    seg_len = tag->encoded_name[seg_len_index];
+
     /* finish up the encoded name.   Name must be a multiple of two bytes long. */
     if(tag->encoded_name[seg_len_index] & 0x01) {
         tag->encoded_name[encoded_i] = 0;
@@ -493,7 +496,7 @@ int parse_symbolic_segment(ab_tag_p tag, const char *name, int *encoded_index, i
     *encoded_index = encoded_i;
     *name_index = name_i;
 
-    pdebug(DEBUG_DETAIL, "Parsed symbolic segment \"%.*s\" in tag name.", tag->encoded_name[seg_len_index], &name[name_start]);
+    pdebug(DEBUG_DETAIL, "Parsed symbolic segment \"%.*s\" in tag name.", seg_len, &name[name_start]);
 
     return PLCTAG_STATUS_OK;
 }
@@ -504,7 +507,7 @@ int parse_numeric_segment(ab_tag_p tag, const char *name, int *encoded_index, in
     const char *p, *q;
     long val;
 
-    pdebug(DEBUG_DETAIL, "Starting with name index=%d and encoded name index=%d.", name_index, encoded_index);
+    pdebug(DEBUG_DETAIL, "Starting with name index=%d and encoded name index=%d.", *name_index, *encoded_index);
 
     p = &name[*name_index];
     q = p;
