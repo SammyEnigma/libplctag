@@ -486,11 +486,10 @@ int parse_symbolic_segment(ab_tag_p tag, const char *name, int *encoded_index, i
 
     seg_len = tag->encoded_name[seg_len_index];
 
-    /* finish up the encoded name.   Name must be a multiple of two bytes long. */
+    /* finish up the encoded name.   Space for the name must be a multiple of two bytes long. */
     if(tag->encoded_name[seg_len_index] & 0x01) {
         tag->encoded_name[encoded_i] = 0;
         encoded_i++;
-        tag->encoded_name[seg_len_index]++;
     }
 
     *encoded_index = encoded_i;
