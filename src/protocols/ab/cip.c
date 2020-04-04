@@ -358,7 +358,7 @@ int cip_encode_tag_name(ab_tag_p tag, const char *name)
             if(parse_symbolic_segment(tag, name, &encoded_index, &name_index) != PLCTAG_STATUS_OK) {
                 /* try a bit identifier. */
                 if(parse_bit_segment(tag, name, &name_index) == PLCTAG_STATUS_OK) {
-                    pdebug(DEBUG_DETAIL, "Found bit identifier.");
+                    pdebug(DEBUG_DETAIL, "Found bit identifier %u.", tag->bit);
                     break;
                 } else {
                     pdebug(DEBUG_WARN, "Expected a symbolic segment or a bit identifier at position %d in tag name %s", name_index);
