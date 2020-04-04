@@ -727,6 +727,8 @@ int ab_get_bit(plc_tag_p raw_tag, int offset_bit)
         return PLCTAG_ERR_OUT_OF_BOUNDS;
     }
 
+    pdebug(DEBUG_DETAIL, "selecting bit %d with offset %d in byte %d (%x).", real_offset, (real_offset % 8), (real_offset / 8), tag->data[real_offset / 8]);
+
     res = !!(((1 << (real_offset % 8)) & 0xFF) & (tag->data[real_offset / 8]));
 
     return res;
