@@ -820,6 +820,9 @@ int build_write_bit_request_connected(ab_tag_p tag)
         }
     }
 
+    /* let the rest of the system know that the write is complete after this. */
+    tag->offset = tag->size;
+
 
 //    /* copy encoded type info */
 //    if (tag->encoded_type_info_size) {
@@ -1017,6 +1020,9 @@ int build_write_bit_request_unconnected(ab_tag_p tag)
             data++;
         }
     }
+
+    /* let the rest of the system know that the write is complete after this. */
+    tag->offset = tag->size;
 
 //    /* copy encoded type info */
 //    if (tag->encoded_type_info_size) {
@@ -2209,7 +2215,8 @@ static int check_write_status_connected(ab_tag_p tag)
         }
 
         if (cip_resp->reply_service != (AB_EIP_CMD_CIP_WRITE_FRAG | AB_EIP_CMD_CIP_OK)
-            && cip_resp->reply_service != (AB_EIP_CMD_CIP_WRITE | AB_EIP_CMD_CIP_OK)) {
+            && cip_resp->reply_service != (AB_EIP_CMD_CIP_WRITE | AB_EIP_CMD_CIP_OK)
+            && cip_resp->reply_service != (AB_EIP_CMD_CIP_RMW | AB_EIP_CMD_CIP_OK)) {
             pdebug(DEBUG_WARN, "CIP response reply service unexpected: %d", cip_resp->reply_service);
             rc = PLCTAG_ERR_BAD_DATA;
             break;
@@ -2324,11 +2331,13 @@ static int check_write_status_unconnected(ab_tag_p tag)
         }
 
         if (cip_resp->reply_service != (AB_EIP_CMD_CIP_WRITE_FRAG | AB_EIP_CMD_CIP_OK)
-            && cip_resp->reply_service != (AB_EIP_CMD_CIP_WRITE | AB_EIP_CMD_CIP_OK)) {
+            && cip_resp->reply_service != (AB_EIP_CMD_CIP_WRITE | AB_EIP_CMD_CIP_OK)
+            && cip_resp->reply_service != (AB_EIP_CMD_CIP_RMW | AB_EIP_CMD_CIP_OK)) {
             pdebug(DEBUG_WARN, "CIP response reply service unexpected: %d", cip_resp->reply_service);
             rc = PLCTAG_ERR_BAD_DATA;
             break;
         }
+
 
         if (cip_resp->status != AB_CIP_STATUS_OK && cip_resp->status != AB_CIP_STATUS_FRAG) {
             pdebug(DEBUG_WARN, "CIP read failed with status: 0x%x %s", cip_resp->status, decode_cip_error_short((uint8_t *)&cip_resp->status));
