@@ -44,7 +44,7 @@
 #include "utils.h"
 
 
-#define PLC_LIB_BOOL    (0x101)
+#define PLC_LIB_BIT     (0x101)
 #define PLC_LIB_UINT8   (0x108)
 #define PLC_LIB_SINT8   (0x208)
 #define PLC_LIB_UINT16  (0x110)
@@ -96,7 +96,9 @@ void parse_args(int argc, char **argv)
         if(!strcmp(argv[i],"-t")) {
             i++; /* get the arg next */
             if(i < argc) {
-                if(!strcasecmp("uint8",argv[i])) {
+                if(!strcasecmp("bit",argv[i])) {
+                    data_type = PLC_LIB_BIT;
+                } else if(!strcasecmp("uint8",argv[i])) {
                     data_type = PLC_LIB_UINT8;
                 } else if(!strcasecmp("sint8",argv[i])) {
                     data_type = PLC_LIB_SINT8;
@@ -172,6 +174,7 @@ int main(int argc, char **argv)
         is_write = 1;
 
         switch(data_type) {
+        case PLC_LIB_BIT:
         case PLC_LIB_UINT8:
         case PLC_LIB_UINT16:
         case PLC_LIB_UINT32:
@@ -241,46 +244,54 @@ int main(int argc, char **argv)
             }
 
             /* display the data */
-            for(i=0; index < plc_tag_get_size(tag); i++) {
-                switch(data_type) {
-                case PLC_LIB_UINT8:
-                    printf("data[%d]=%u (%x)\n",i,plc_tag_get_uint8(tag,index),plc_tag_get_uint8(tag,index));
-                    index += 1;
-                    break;
+            if(data_type == PLC_LIB_BIT) {
+                printf("data=%d\n", (plc_tag_get_bit(tag, 0) ? 1 : 0));
+            } else {
+                for(i=0; index < plc_tag_get_size(tag); i++) {
+                    switch(data_type) {
+                    case PLC_LIB_UINT8:
+                        printf("data[%d]=%u (%x)\n",i,plc_tag_get_uint8(tag,index),plc_tag_get_uint8(tag,index));
+                        index += 1;
+                        break;
 
-                case PLC_LIB_UINT16:
-                    printf("data[%d]=%u (%x)\n",i,plc_tag_get_uint16(tag,index),plc_tag_get_uint16(tag,index));
-                    index += 2;
-                    break;
+                    case PLC_LIB_UINT16:
+                        printf("data[%d]=%u (%x)\n",i,plc_tag_get_uint16(tag,index),plc_tag_get_uint16(tag,index));
+                        index += 2;
+                        break;
 
-                case PLC_LIB_UINT32:
-                    printf("data[%d]=%u (%x)\n",i,plc_tag_get_uint32(tag,index),plc_tag_get_uint32(tag,index));
-                    index += 4;
-                    break;
+                    case PLC_LIB_UINT32:
+                        printf("data[%d]=%u (%x)\n",i,plc_tag_get_uint32(tag,index),plc_tag_get_uint32(tag,index));
+                        index += 4;
+                        break;
 
-                case PLC_LIB_SINT8:
-                    printf("data[%d]=%d (%x)\n",i,plc_tag_get_int8(tag,index),plc_tag_get_int8(tag,index));
-                    index += 1;
-                    break;
+                    case PLC_LIB_SINT8:
+                        printf("data[%d]=%d (%x)\n",i,plc_tag_get_int8(tag,index),plc_tag_get_int8(tag,index));
+                        index += 1;
+                        break;
 
-                case PLC_LIB_SINT16:
-                    printf("data[%d]=%d (%x)\n",i,plc_tag_get_int16(tag,index),plc_tag_get_int16(tag,index));
-                    index += 2;
-                    break;
+                    case PLC_LIB_SINT16:
+                        printf("data[%d]=%d (%x)\n",i,plc_tag_get_int16(tag,index),plc_tag_get_int16(tag,index));
+                        index += 2;
+                        break;
 
-                case PLC_LIB_SINT32:
-                    printf("data[%d]=%d (%x)\n",i,plc_tag_get_int32(tag,index),plc_tag_get_int32(tag,index));
-                    index += 4;
-                    break;
+                    case PLC_LIB_SINT32:
+                        printf("data[%d]=%d (%x)\n",i,plc_tag_get_int32(tag,index),plc_tag_get_int32(tag,index));
+                        index += 4;
+                        break;
 
-                case PLC_LIB_REAL32:
-                    printf("data[%d]=%f\n",i,plc_tag_get_float32(tag,index));
-                    index += 4;
-                    break;
+                    case PLC_LIB_REAL32:
+                        printf("data[%d]=%f\n",i,plc_tag_get_float32(tag,index));
+                        index += 4;
+                        break;
+                    }
                 }
             }
         } else {
             switch(data_type) {
+            case PLC_LIB_BIT:
+                rc = plc_tag_set_bit(tag, 0, (int)u_val);
+                break;
+
             case PLC_LIB_UINT8:
                 rc = plc_tag_set_uint8(tag,0,(uint8_t)u_val);
                 break;
