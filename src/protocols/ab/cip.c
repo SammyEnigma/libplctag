@@ -422,6 +422,8 @@ int parse_bit_segment(ab_tag_p tag, const char *name, int *name_index)
     const char *p, *q;
     long val;
 
+    pdebug(DEBUG_DETAIL, "Starting with name index=%d.", *name_index);
+
     p = &name[*name_index];
     q = p;
 
