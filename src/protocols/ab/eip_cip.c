@@ -2508,7 +2508,7 @@ int setup_tag_listing(ab_tag_p tag, const char *name)
             }
 
             /* we have a program tag request! */
-            if(!cip_encode_tag_name(tag, tag_parts[0])) {
+            if(cip_encode_tag_name(tag, tag_parts[0]) != PLCTAG_STATUS_OK) {
                 mem_free(tag_parts);
                 pdebug(DEBUG_WARN, "Tag program listing, %s, is not able to be encoded!", name);
                 return PLCTAG_ERR_BAD_PARAM;
