@@ -24,7 +24,8 @@
  * 2013-11-19  KRH - Created file.                                        *
  **************************************************************************/
 
-
+#include <limits.h>
+#include <float.h>
 #include <platform.h>
 #include <lib/libplctag.h>
 #include <lib/tag.h>
@@ -85,9 +86,48 @@ static int default_tickler(plc_tag_p tag);
 static int default_write(plc_tag_p tag);
 
 
-
 /* vtables for different kinds of tags */
-struct tag_vtable_t default_vtable = { default_abort, default_read, default_status, default_tickler, default_write };
+struct tag_vtable_t default_vtable = {
+    default_abort,
+    default_read,
+    default_status,
+    default_tickler,
+    default_write,
+
+    /* data accessors */
+    ab_get_bit,
+    ab_set_bit,
+
+    ab_get_uint64,
+    ab_set_uint64,
+
+    ab_get_int64,
+    ab_set_int64,
+
+    ab_get_uint32,
+    ab_set_uint32,
+
+    ab_get_int32,
+    ab_set_int32,
+
+    ab_get_uint16,
+    ab_set_uint16,
+
+    ab_get_int16,
+    ab_set_int16,
+
+    ab_get_uint8,
+    ab_set_uint8,
+
+    ab_get_int8,
+    ab_set_int8,
+
+    ab_get_float64,
+    ab_set_float64,
+
+    ab_get_float32,
+    ab_set_float32
+};
 
 
 /*
@@ -653,6 +693,702 @@ void ab_tag_destroy(ab_tag_p tag)
 
 
 
+
+
+int ab_get_bit(plc_tag_p raw_tag, int offset_bit)
+{
+    int res = PLCTAG_ERR_OUT_OF_BOUNDS;
+    ab_tag_p tag = (ab_tag_p)raw_tag;
+
+    pdebug(DEBUG_SPEW, "Starting.");
+
+    /* is there data? */
+    if(!tag->data) {
+        pdebug(DEBUG_WARN,"Tag has no data!");
+        return PLCTAG_ERR_NO_DATA;
+    }
+
+    /* is there enough data */
+    if((offset_bit < 0) || ((offset_bit / 8) > tag->size)) {
+        pdebug(DEBUG_WARN,"Data offset out of bounds.");
+        return PLCTAG_ERR_OUT_OF_BOUNDS;
+    }
+
+    res = !!(((1 << (offset_bit % 8)) & 0xFF) & (tag->data[offset_bit / 8]));
+
+    return res;
+}
+
+
+int ab_set_bit(plc_tag_p raw_tag, int offset_bit, int val)
+{
+    int res = PLCTAG_STATUS_OK;
+    ab_tag_p tag = (ab_tag_p)raw_tag;
+
+    pdebug(DEBUG_SPEW, "Starting.");
+
+    /* is there data? */
+    if(!tag->data) {
+        pdebug(DEBUG_WARN,"Tag has no data!");
+        return PLCTAG_ERR_NO_DATA;
+    }
+
+    /* is there enough data */
+    if((offset_bit < 0) || ((offset_bit / 8) > tag->size)) {
+        pdebug(DEBUG_WARN,"Data offset out of bounds.");
+        return PLCTAG_ERR_OUT_OF_BOUNDS;
+    }
+
+    if(val) {
+        tag->data[offset_bit / 8] |= (uint8_t)(1 << (offset_bit % 8));
+    } else {
+        tag->data[offset_bit / 8] &= ~((uint8_t)(1 << (offset_bit % 8)));
+    }
+
+    res = PLCTAG_STATUS_OK;
+
+    return res;
+}
+
+
+
+uint64_t ab_get_uint64(plc_tag_p raw_tag, int offset)
+{
+    uint64_t res = UINT64_MAX;
+    ab_tag_p tag = (ab_tag_p)raw_tag;
+
+    pdebug(DEBUG_SPEW, "Starting.");
+
+    /* is there data? */
+    if(!tag->data) {
+        pdebug(DEBUG_WARN,"Tag has no data!");
+        return res;
+    }
+
+    /* is there enough data */
+    if((offset < 0) || (offset + ((int)sizeof(uint64_t)) > tag->size)) {
+        pdebug(DEBUG_WARN,"Data offset out of bounds.");
+        return res;
+    }
+
+    res = ((uint64_t)(tag->data[offset])) +
+          ((uint64_t)(tag->data[offset+1]) << 8) +
+          ((uint64_t)(tag->data[offset+2]) << 16) +
+          ((uint64_t)(tag->data[offset+3]) << 24) +
+          ((uint64_t)(tag->data[offset+4]) << 32) +
+          ((uint64_t)(tag->data[offset+5]) << 40) +
+          ((uint64_t)(tag->data[offset+6]) << 48) +
+          ((uint64_t)(tag->data[offset+7]) << 56);
+
+    return res;
+}
+
+
+
+int ab_set_uint64(plc_tag_p raw_tag, int offset, uint64_t val)
+{
+    int rc = PLCTAG_STATUS_OK;
+    ab_tag_p tag = (ab_tag_p)raw_tag;
+
+    pdebug(DEBUG_SPEW, "Starting.");
+
+    /* is there data? */
+    if(!tag->data) {
+        pdebug(DEBUG_WARN,"Tag has no data!");
+        return PLCTAG_ERR_NO_DATA;
+    }
+
+    /* is there enough data */
+    if((offset < 0) || (offset + ((int)sizeof(uint64_t)) > tag->size)) {
+        pdebug(DEBUG_WARN,"Data offset out of bounds.");
+        return PLCTAG_ERR_OUT_OF_BOUNDS;
+    }
+
+    /* write the data. */
+    tag->data[offset]   = (uint8_t)(val & 0xFF);
+    tag->data[offset+1] = (uint8_t)((val >> 8) & 0xFF);
+    tag->data[offset+2] = (uint8_t)((val >> 16) & 0xFF);
+    tag->data[offset+3] = (uint8_t)((val >> 24) & 0xFF);
+    tag->data[offset+4] = (uint8_t)((val >> 32) & 0xFF);
+    tag->data[offset+5] = (uint8_t)((val >> 40) & 0xFF);
+    tag->data[offset+6] = (uint8_t)((val >> 48) & 0xFF);
+    tag->data[offset+7] = (uint8_t)((val >> 56) & 0xFF);
+
+    return rc;
+}
+
+
+
+
+int64_t ab_get_int64(plc_tag_p raw_tag, int offset)
+{
+    int64_t res = INT64_MIN;
+    ab_tag_p tag = (ab_tag_p)raw_tag;
+
+    pdebug(DEBUG_SPEW, "Starting.");
+
+    /* is there data? */
+    if(!tag->data) {
+        pdebug(DEBUG_WARN,"Tag has no data!");
+        return res;
+    }
+
+    /* is there enough data */
+    if((offset < 0) || (offset + ((int)sizeof(int64_t)) > tag->size)) {
+        pdebug(DEBUG_WARN,"Data offset out of bounds.");
+        return res;
+    }
+
+    res = (int64_t)(((uint64_t)(tag->data[offset])) +
+                    ((uint64_t)(tag->data[offset+1]) << 8) +
+                    ((uint64_t)(tag->data[offset+2]) << 16) +
+                    ((uint64_t)(tag->data[offset+3]) << 24) +
+                    ((uint64_t)(tag->data[offset+4]) << 32) +
+                    ((uint64_t)(tag->data[offset+5]) << 40) +
+                    ((uint64_t)(tag->data[offset+6]) << 48) +
+                    ((uint64_t)(tag->data[offset+7]) << 56));
+
+    return res;
+}
+
+
+
+int ab_set_int64(plc_tag_p raw_tag, int offset, int64_t ival)
+{
+    uint64_t val = (uint64_t)(ival);
+    int rc = PLCTAG_STATUS_OK;
+    ab_tag_p tag = (ab_tag_p)raw_tag;
+
+    pdebug(DEBUG_SPEW, "Starting.");
+
+    /* is there data? */
+    if(!tag->data) {
+        pdebug(DEBUG_WARN,"Tag has no data!");
+        return PLCTAG_ERR_NO_DATA;
+    }
+
+    /* is there enough data */
+    if((offset < 0) || (offset + ((int)sizeof(int64_t)) > tag->size)) {
+        pdebug(DEBUG_WARN,"Data offset out of bounds.");
+        return PLCTAG_ERR_OUT_OF_BOUNDS;
+    }
+
+    tag->data[offset]   = (uint8_t)(val & 0xFF);
+    tag->data[offset+1] = (uint8_t)((val >> 8) & 0xFF);
+    tag->data[offset+2] = (uint8_t)((val >> 16) & 0xFF);
+    tag->data[offset+3] = (uint8_t)((val >> 24) & 0xFF);
+    tag->data[offset+4] = (uint8_t)((val >> 32) & 0xFF);
+    tag->data[offset+5] = (uint8_t)((val >> 40) & 0xFF);
+    tag->data[offset+6] = (uint8_t)((val >> 48) & 0xFF);
+    tag->data[offset+7] = (uint8_t)((val >> 56) & 0xFF);
+
+    return rc;
+}
+
+
+
+
+
+
+
+
+
+uint32_t ab_get_uint32(plc_tag_p raw_tag, int offset)
+{
+    uint32_t res = UINT32_MAX;
+    ab_tag_p tag = (ab_tag_p)raw_tag;
+
+    pdebug(DEBUG_SPEW, "Starting.");
+
+    /* is there data? */
+    if(!tag->data) {
+        pdebug(DEBUG_WARN,"Tag has no data!");
+        return res;
+    }
+
+    /* is there enough data */
+    if((offset < 0) || (offset + ((int)sizeof(uint32_t)) > tag->size)) {
+        pdebug(DEBUG_WARN,"Data offset out of bounds.");
+        return res;
+    }
+
+    res = ((uint32_t)(tag->data[offset])) +
+          ((uint32_t)(tag->data[offset+1]) << 8) +
+          ((uint32_t)(tag->data[offset+2]) << 16) +
+          ((uint32_t)(tag->data[offset+3]) << 24);
+
+    return res;
+}
+
+
+
+int ab_set_uint32(plc_tag_p raw_tag, int offset, uint32_t val)
+{
+    int rc = PLCTAG_STATUS_OK;
+    ab_tag_p tag = (ab_tag_p)raw_tag;
+
+    pdebug(DEBUG_SPEW, "Starting.");
+
+    /* is there data? */
+    if(!tag->data) {
+        pdebug(DEBUG_WARN,"Tag has no data!");
+        return PLCTAG_ERR_NO_DATA;
+    }
+
+    /* is there enough data */
+    if((offset < 0) || (offset + ((int)sizeof(uint32_t)) > tag->size)) {
+        pdebug(DEBUG_WARN,"Data offset out of bounds.");
+        return PLCTAG_ERR_OUT_OF_BOUNDS;
+    }
+
+    /* write the data. */
+    tag->data[offset]   = (uint8_t)(val & 0xFF);
+    tag->data[offset+1] = (uint8_t)((val >> 8) & 0xFF);
+    tag->data[offset+2] = (uint8_t)((val >> 16) & 0xFF);
+    tag->data[offset+3] = (uint8_t)((val >> 24) & 0xFF);
+
+    return rc;
+}
+
+
+
+
+int32_t ab_get_int32(plc_tag_p raw_tag, int offset)
+{
+    int32_t res = INT32_MIN;
+    ab_tag_p tag = (ab_tag_p)raw_tag;
+
+    pdebug(DEBUG_SPEW, "Starting.");
+
+    /* is there data? */
+    if(!tag->data) {
+        pdebug(DEBUG_WARN,"Tag has no data!");
+        return res;
+    }
+
+    /* is there enough data */
+    if((offset < 0) || (offset + ((int)sizeof(int32_t)) > tag->size)) {
+        pdebug(DEBUG_WARN,"Data offset out of bounds.");
+        return res;
+    }
+
+    res = (int32_t)(((uint32_t)(tag->data[offset])) +
+                    ((uint32_t)(tag->data[offset+1]) << 8) +
+                    ((uint32_t)(tag->data[offset+2]) << 16) +
+                    ((uint32_t)(tag->data[offset+3]) << 24));
+
+    return res;
+}
+
+
+
+int ab_set_int32(plc_tag_p raw_tag, int offset, int32_t ival)
+{
+    uint32_t val = (uint32_t)(ival);
+    int rc = PLCTAG_STATUS_OK;
+    ab_tag_p tag = (ab_tag_p)raw_tag;
+
+    pdebug(DEBUG_SPEW, "Starting.");
+
+    /* is there data? */
+    if(!tag->data) {
+        pdebug(DEBUG_WARN,"Tag has no data!");
+        return PLCTAG_ERR_NO_DATA;
+    }
+
+    /* is there enough data */
+    if((offset < 0) || (offset + ((int)sizeof(int32_t)) > tag->size)) {
+        pdebug(DEBUG_WARN,"Data offset out of bounds.");
+        return PLCTAG_ERR_OUT_OF_BOUNDS;
+    }
+
+    tag->data[offset]   = (uint8_t)(val & 0xFF);
+    tag->data[offset+1] = (uint8_t)((val >> 8) & 0xFF);
+    tag->data[offset+2] = (uint8_t)((val >> 16) & 0xFF);
+    tag->data[offset+3] = (uint8_t)((val >> 24) & 0xFF);
+
+    return rc;
+}
+
+
+
+
+
+
+
+
+
+uint16_t ab_get_uint16(plc_tag_p raw_tag, int offset)
+{
+    uint16_t res = UINT16_MAX;
+    ab_tag_p tag = (ab_tag_p)raw_tag;
+
+    pdebug(DEBUG_SPEW, "Starting.");
+
+    /* is there data? */
+    if(!tag->data) {
+        pdebug(DEBUG_WARN,"Tag has no data!");
+        return res;
+    }
+
+    /* is there enough data */
+    if((offset < 0) || (offset + ((int)sizeof(uint16_t)) > tag->size)) {
+        pdebug(DEBUG_WARN,"Data offset out of bounds.");
+        return res;
+    }
+
+    res = (uint16_t)((tag->data[offset]) +
+                     ((tag->data[offset+1]) << 8));
+
+    return res;
+}
+
+
+
+
+int ab_set_uint16(plc_tag_p raw_tag, int offset, uint16_t val)
+{
+    int rc = PLCTAG_STATUS_OK;
+    ab_tag_p tag = (ab_tag_p)raw_tag;
+
+    pdebug(DEBUG_SPEW, "Starting.");
+
+    /* is there data? */
+    if(!tag->data) {
+        pdebug(DEBUG_WARN,"Tag has no data!");
+        return PLCTAG_ERR_NO_DATA;
+    }
+
+    /* is there enough data */
+    if((offset < 0) || (offset + ((int)sizeof(uint16_t)) > tag->size)) {
+        pdebug(DEBUG_WARN,"Data offset out of bounds.");
+        return PLCTAG_ERR_OUT_OF_BOUNDS;
+    }
+
+    tag->data[offset]   = (uint8_t)(val & 0xFF);
+    tag->data[offset+1] = (uint8_t)((val >> 8) & 0xFF);
+
+    return rc;
+}
+
+
+
+
+
+
+
+
+
+int16_t  ab_get_int16(plc_tag_p raw_tag, int offset)
+{
+    int16_t res = INT16_MIN;
+    ab_tag_p tag = (ab_tag_p)raw_tag;
+
+    pdebug(DEBUG_SPEW, "Starting.");
+
+    /* is there data? */
+    if(!tag->data) {
+        pdebug(DEBUG_WARN,"Tag has no data!");
+        return res;
+    }
+
+    /* is there enough data */
+    if((offset < 0) || (offset + ((int)sizeof(int16_t)) > tag->size)) {
+        pdebug(DEBUG_WARN,"Data offset out of bounds.");
+        return res;
+    }
+
+    res = (int16_t)(((tag->data[offset])) +
+                    ((tag->data[offset+1]) << 8));
+
+    return res;
+}
+
+
+
+
+int ab_set_int16(plc_tag_p raw_tag, int offset, int16_t ival)
+{
+    uint16_t val = (uint16_t)(ival);
+    int rc = PLCTAG_STATUS_OK;
+    ab_tag_p tag = (ab_tag_p)raw_tag;
+
+    pdebug(DEBUG_SPEW, "Starting.");
+
+    /* is there data? */
+    if(!tag->data) {
+        pdebug(DEBUG_WARN,"Tag has no data!");
+        return PLCTAG_ERR_NO_DATA;
+    }
+
+    /* is there enough data */
+    if((offset < 0) || (offset + ((int)sizeof(int16_t)) > tag->size)) {
+        pdebug(DEBUG_WARN,"Data offset out of bounds.");
+        return PLCTAG_ERR_OUT_OF_BOUNDS;
+    }
+
+    tag->data[offset]   = (uint8_t)(val & 0xFF);
+    tag->data[offset+1] = (uint8_t)((val >> 8) & 0xFF);
+
+    return rc;
+}
+
+
+
+uint8_t ab_get_uint8(plc_tag_p raw_tag, int offset)
+{
+    uint8_t res = UINT8_MAX;
+    ab_tag_p tag = (ab_tag_p)raw_tag;
+
+    pdebug(DEBUG_SPEW, "Starting.");
+
+    /* is there data? */
+    if(!tag->data) {
+        pdebug(DEBUG_WARN,"Tag has no data!");
+        return res;
+    }
+
+    /* is there enough data */
+    if((offset < 0) || (offset + ((int)sizeof(uint8_t)) > tag->size)) {
+        pdebug(DEBUG_WARN,"Data offset out of bounds.");
+        return res;
+    }
+
+    res = tag->data[offset];
+
+    return res;
+}
+
+
+
+
+int ab_set_uint8(plc_tag_p raw_tag, int offset, uint8_t val)
+{
+    int rc = PLCTAG_STATUS_OK;
+    ab_tag_p tag = (ab_tag_p)raw_tag;
+
+    pdebug(DEBUG_SPEW, "Starting.");
+
+    /* is there data? */
+    if(!tag->data) {
+        pdebug(DEBUG_WARN,"Tag has no data!");
+        return PLCTAG_ERR_NO_DATA;
+    }
+
+    /* is there enough data */
+    if((offset < 0) || (offset + ((int)sizeof(uint8_t)) > tag->size)) {
+        pdebug(DEBUG_WARN,"Data offset out of bounds.");
+        return PLCTAG_ERR_OUT_OF_BOUNDS;
+    }
+
+    tag->data[offset] = val;
+
+    return rc;
+}
+
+
+
+
+
+int8_t ab_get_int8(plc_tag_p raw_tag, int offset)
+{
+    int8_t res = INT8_MIN;
+    ab_tag_p tag = (ab_tag_p)raw_tag;
+
+    pdebug(DEBUG_SPEW, "Starting.");
+
+    /* is there data? */
+    if(!tag->data) {
+        pdebug(DEBUG_WARN,"Tag has no data!");
+        return res;
+    }
+
+    /* is there enough data */
+    if((offset < 0) || (offset + ((int)sizeof(int8_t)) > tag->size)) {
+        pdebug(DEBUG_WARN,"Data offset out of bounds.");
+        return res;
+    }
+
+    res = (int8_t)(tag->data[offset]);
+
+    return res;
+}
+
+
+
+
+int ab_set_int8(plc_tag_p raw_tag, int offset, int8_t ival)
+{
+    uint8_t val = (uint8_t)(ival);
+    int rc = PLCTAG_STATUS_OK;
+    ab_tag_p tag = (ab_tag_p)raw_tag;
+
+    pdebug(DEBUG_SPEW, "Starting.");
+
+    /* is there data? */
+    if(!tag->data) {
+        pdebug(DEBUG_WARN,"Tag has no data!");
+        return PLCTAG_ERR_NO_DATA;
+    }
+
+    /* is there enough data */
+    if((offset < 0) || (offset + ((int)sizeof(int8_t)) > tag->size)) {
+        pdebug(DEBUG_WARN,"Data offset out of bounds.");
+        return PLCTAG_ERR_OUT_OF_BOUNDS;
+    }
+
+    tag->data[offset] = (uint8_t)val;
+
+    return rc;
+}
+
+
+
+
+
+
+double ab_get_float64(plc_tag_p raw_tag, int offset)
+{
+    uint64_t ures = 0;
+    double res = DBL_MAX;
+    ab_tag_p tag = (ab_tag_p)raw_tag;
+
+    pdebug(DEBUG_SPEW, "Starting.");
+
+    /* is there data? */
+    if(!tag->data) {
+        pdebug(DEBUG_WARN,"Tag has no data!");
+        return res;
+    }
+
+    /* is there enough data */
+    if((offset < 0) || (offset + ((int)sizeof(ures)) > tag->size)) {
+        pdebug(DEBUG_WARN,"Data offset out of bounds.");
+        return res;
+    }
+
+    ures = ((uint64_t)(tag->data[offset])) +
+           ((uint64_t)(tag->data[offset+1]) << 8) +
+           ((uint64_t)(tag->data[offset+2]) << 16) +
+           ((uint64_t)(tag->data[offset+3]) << 24) +
+           ((uint64_t)(tag->data[offset+4]) << 32) +
+           ((uint64_t)(tag->data[offset+5]) << 40) +
+           ((uint64_t)(tag->data[offset+6]) << 48) +
+           ((uint64_t)(tag->data[offset+7]) << 56);
+
+    /* copy the data */
+    mem_copy(&res,&ures,sizeof(res));
+
+    return res;
+}
+
+
+
+
+int ab_set_float64(plc_tag_p raw_tag, int offset, double fval)
+{
+    int rc = PLCTAG_STATUS_OK;
+    uint64_t val = 0;
+    ab_tag_p tag = (ab_tag_p)raw_tag;
+
+    pdebug(DEBUG_SPEW, "Starting.");
+
+    mem_copy(&val, &fval, sizeof(val));
+
+    /* is there data? */
+    if(!tag->data) {
+        pdebug(DEBUG_WARN,"Tag has no data!");
+        return PLCTAG_ERR_NO_DATA;
+    }
+
+    /* is there enough data */
+    if((offset < 0) || (offset + ((int)sizeof(val)) > tag->size)) {
+        pdebug(DEBUG_WARN,"Data offset out of bounds.");
+        return PLCTAG_ERR_OUT_OF_BOUNDS;
+    }
+
+    tag->data[offset]   = (uint8_t)(val & 0xFF);
+    tag->data[offset+1] = (uint8_t)((val >> 8) & 0xFF);
+    tag->data[offset+2] = (uint8_t)((val >> 16) & 0xFF);
+    tag->data[offset+3] = (uint8_t)((val >> 24) & 0xFF);
+    tag->data[offset+4] = (uint8_t)((val >> 32) & 0xFF);
+    tag->data[offset+5] = (uint8_t)((val >> 40) & 0xFF);
+    tag->data[offset+6] = (uint8_t)((val >> 48) & 0xFF);
+    tag->data[offset+7] = (uint8_t)((val >> 56) & 0xFF);
+
+    return rc;
+}
+
+
+
+float ab_get_float32(plc_tag_p raw_tag, int offset)
+{
+    uint32_t ures;
+    float res = FLT_MAX;
+    ab_tag_p tag = (ab_tag_p)raw_tag;
+
+    pdebug(DEBUG_SPEW, "Starting.");
+
+    /* is there data? */
+    if(!tag->data) {
+        pdebug(DEBUG_WARN,"Tag has no data!");
+        return res;
+    }
+
+    /* is there enough data */
+    if((offset < 0) || (offset + ((int)sizeof(ures)) > tag->size)) {
+        pdebug(DEBUG_WARN,"Data offset out of bounds.");
+        return res;
+    }
+
+    ures = ((uint32_t)(tag->data[offset])) +
+           ((uint32_t)(tag->data[offset+1]) << 8) +
+           ((uint32_t)(tag->data[offset+2]) << 16) +
+           ((uint32_t)(tag->data[offset+3]) << 24);
+
+    /* copy the data */
+    mem_copy(&res,&ures,sizeof(res));
+
+    return res;
+}
+
+
+
+
+int ab_set_float32(plc_tag_p raw_tag, int offset, float fval)
+{
+    int rc = PLCTAG_STATUS_OK;
+    uint32_t val = 0;
+    ab_tag_p tag = (ab_tag_p)raw_tag;
+
+    pdebug(DEBUG_SPEW, "Starting.");
+
+    mem_copy(&val, &fval, sizeof(val));
+
+    /* is there data? */
+    if(!tag->data) {
+        pdebug(DEBUG_WARN,"Tag has no data!");
+        return PLCTAG_ERR_NO_DATA;
+    }
+
+    /* is there enough data */
+    if((offset < 0) || (offset + ((int)sizeof(val)) > tag->size)) {
+        pdebug(DEBUG_WARN,"Data offset out of bounds.");
+        return PLCTAG_ERR_OUT_OF_BOUNDS;
+    }
+
+    tag->data[offset]   = (uint8_t)(val & 0xFF);
+    tag->data[offset+1] = (uint8_t)((val >> 8) & 0xFF);
+    tag->data[offset+2] = (uint8_t)((val >> 16) & 0xFF);
+    tag->data[offset+3] = (uint8_t)((val >> 24) & 0xFF);
+
+    return rc;
+}
+
+
+
+
+
 plc_type_t get_plc_type(attr attribs)
 {
     const char *cpu_type = attr_get_str(attribs, "plc", attr_get_str(attribs, "cpu", "NONE"));
@@ -733,10 +1469,10 @@ int check_tag_name(ab_tag_p tag, const char* name)
 
     case AB_PROTOCOL_MLGX800:
     case AB_PROTOCOL_LGX:
-        if (!cip_encode_tag_name(tag, name)) {
+        if ((rc = cip_encode_tag_name(tag, name)) != PLCTAG_STATUS_OK) {
             pdebug(DEBUG_WARN, "parse of CIP-style tag name %s failed!", name);
 
-            return PLCTAG_ERR_BAD_PARAM;
+            return rc;
         }
 
         break;

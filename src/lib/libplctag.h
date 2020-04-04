@@ -272,6 +272,9 @@ extern "C" {
 
     LIB_EXPORT int plc_tag_get_size(int32_t tag);
 
+    LIB_EXPORT int plc_tag_get_bit(int32_t tag, int offset_bit);
+    LIB_EXPORT int plc_tag_set_bit(int32_t tag, int offset_bit, int val);
+
     LIB_EXPORT uint64_t plc_tag_get_uint64(int32_t tag, int offset);
     LIB_EXPORT int plc_tag_set_uint64(int32_t tag, int offset, uint64_t val);
 

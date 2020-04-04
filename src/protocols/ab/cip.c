@@ -341,7 +341,8 @@ int cip_encode_tag_name(ab_tag_p tag, const char *name)
     int name_len = str_length(name);
 
     /* zero out the CIP encoded name size. Byte zero in the encoded name. */
-    tag->encoded_name[0] = 0;
+    tag->encoded_name[encoded_index] = 0;
+    encoded_index++;
 
     /* names must start with a symbolic segment. */
     if(parse_symbolic_segment(tag, name, &encoded_index, &name_index) != PLCTAG_STATUS_OK) {
@@ -383,6 +384,12 @@ int cip_encode_tag_name(ab_tag_p tag, const char *name)
                 pdebug(DEBUG_WARN, "Bad tag name format, expected closing array bracket at %d in tag name %s!", name_index, name);
                 return PLCTAG_ERR_BAD_PARAM;
             }
+
+            /* step past the closing bracket. */
+            name_index++;
+        } else {
+            pdebug(DEBUG_WARN,"Unexpected character at position %d in name string %s!", name_index, name);
+            break;
         }
     }
 
@@ -443,41 +450,48 @@ int parse_bit_segment(ab_tag_p tag, const char *name, int *name_index)
 
 int parse_symbolic_segment(ab_tag_p tag, const char *name, int *encoded_index, int *name_index)
 {
+    int encoded_i = *encoded_index;
+    int name_i = *name_index;
+    int name_start = name_i;
     int seg_len_index = 0;
-    int name_start = *name_index;
+
+    pdebug(DEBUG_DETAIL, "Starting with name index=%d and encoded name index=%d.", name_i, encoded_i);
 
     /* a symbolic segment must start with an alphabetic character, then can have digits or underscores. */
-    if(!isalpha(name[*name_index]) && name[*name_index] != ':' && name[*name_index] != '_') {
-        pdebug(DEBUG_DETAIL, "tag name at position %d is not the start of a symbolic segment.", *name_index);
+    if(!isalpha(name[name_i]) && name[name_i] != ':' && name[name_i] != '_') {
+        pdebug(DEBUG_DETAIL, "tag name at position %d is not the start of a symbolic segment.", name_i);
         return PLCTAG_ERR_NO_MATCH;
     }
 
     /* start building the encoded symbolic segment. */
-    tag->encoded_name[*encoded_index] = 0x91; /* start of symbolic segment. */
-    (*encoded_index)++;
-    seg_len_index = *encoded_index;
+    tag->encoded_name[encoded_i] = 0x91; /* start of symbolic segment. */
+    encoded_i++;
+    seg_len_index = encoded_i;
     tag->encoded_name[seg_len_index]++;
-    (*encoded_index)++;
+    encoded_i++;
 
     /* store the first character of the name. */
-    tag->encoded_name[*encoded_index] = (uint8_t)name[*name_index];
-    (*encoded_index)++;
-    (*name_index)++;
+    tag->encoded_name[encoded_i] = (uint8_t)name[name_i];
+    encoded_i++;
+    name_i++;
 
     /* get the rest of the name. */
-    while(isalnum(name[*name_index]) || name[*name_index] == ':' || name[*name_index] == '_') {
-        tag->encoded_name[*encoded_index] = (uint8_t)name[*name_index];
-        (*encoded_index)++;
+    while(isalnum(name[name_i]) || name[name_i] == ':' || name[name_i] == '_') {
+        tag->encoded_name[encoded_i] = (uint8_t)name[name_i];
+        encoded_i++;
         tag->encoded_name[seg_len_index]++;
-        (*name_index)++;
+        name_i++;
     }
 
     /* finish up the encoded name.   Name must be a multiple of two bytes long. */
     if(tag->encoded_name[seg_len_index] & 0x01) {
-        tag->encoded_name[*encoded_index] = 0;
-        (*encoded_index)++;
+        tag->encoded_name[encoded_i] = 0;
+        encoded_i++;
         tag->encoded_name[seg_len_index]++;
     }
+
+    *encoded_index = encoded_i;
+    *name_index = name_i;
 
     pdebug(DEBUG_DETAIL, "Parsed symbolic segment \"%.*s\" in tag name.", tag->encoded_name[seg_len_index], &name[name_start]);
 
@@ -489,6 +503,8 @@ int parse_numeric_segment(ab_tag_p tag, const char *name, int *encoded_index, in
 {
     const char *p, *q;
     long val;
+
+    pdebug(DEBUG_DETAIL, "Starting with name index=%d and encoded name index=%d.", name_index, encoded_index);
 
     p = &name[*name_index];
     q = p;
@@ -538,6 +554,7 @@ int parse_numeric_segment(ab_tag_p tag, const char *name, int *encoded_index, in
         tag->encoded_name[*encoded_index] = (uint8_t)val & 0xFF;
         (*encoded_index)++;
         tag->encoded_name[*encoded_index] = (uint8_t)((val >> 8) & 0xFF);
+        (*encoded_index)++;
 
         pdebug(DEBUG_DETAIL, "Parsed 2-byte numeric segment of value %u.", (uint32_t)val);
     } else {
@@ -549,6 +566,8 @@ int parse_numeric_segment(ab_tag_p tag, const char *name, int *encoded_index, in
 
         pdebug(DEBUG_DETAIL, "Parsed 1-byte numeric segment of value %u.", (uint32_t)val);
     }
+
+    pdebug(DEBUG_DETAIL, "Done with name index=%d and encoded name index=%d.", *name_index, *encoded_index);
 
     return PLCTAG_STATUS_OK;
 }
