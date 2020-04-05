@@ -256,7 +256,7 @@ ENDFOREACH()
 add_library(plctag_dyn SHARED ${libplctag_SRCS} )
 
 # set various properties on them
-set_target_properties(plctag_dyn PROPERTIES SOVERSION "${libplctag_VERSION_MAJOR}.${libplctag_VERSION_MINOR}" OUTPUT_NAME "plctag2")
+set_target_properties(plctag_dyn PROPERTIES SOVERSION "${libplctag_VERSION_MAJOR}.${libplctag_VERSION_MINOR}" OUTPUT_NAME "plctag")
 
 if(BASE_LINK_FLAGS)
     set_target_properties(plctag_dyn PROPERTIES LINK_FLAGS "${BASE_LINK_FLAGS}")
@@ -266,7 +266,7 @@ if(UNIX)
 	# static library
 	add_library(plctag_static STATIC ${libplctag_SRCS} )
     set_target_properties(plctag_static PROPERTIES LINK_FLAGS "${BASE_LINK_FLAGS}")
-	set_target_properties(plctag_static PROPERTIES VERSION "${libplctag_VERSION_MAJOR}.${libplctag_VERSION_MINOR}" OUTPUT_NAME "plctag2")
+	set_target_properties(plctag_static PROPERTIES VERSION "${libplctag_VERSION_MAJOR}.${libplctag_VERSION_MINOR}" OUTPUT_NAME "plctag")
 
 	set(tool_lib "plctag_dyn")
 elseif(WIN32)
@@ -274,16 +274,6 @@ elseif(WIN32)
 
 	set(tool_lib "plctag_dyn")
 endif()
-
-#if(THREADS_HAVE_PTHREAD_ARG)
-#  set_property(TARGET plctag_dyn PROPERTY COMPILE_OPTIONS "-pthread")
-#  set_property(TARGET plctag_dyn PROPERTY INTERFACE_COMPILE_OPTIONS "-pthread")
-#endif()
-
-#if(THREADS_HAVE_PTHREAD_ARG)
-#  set_property(TARGET plctag_dyn PROPERTY COMPILE_OPTIONS "-pthread")
-#  set_property(TARGET plctag_dyn PROPERTY INTERFACE_COMPILE_OPTIONS "-pthread")
-#endif()
 
 # make sure we link with the threading library.
 if (UNIX)
@@ -310,6 +300,23 @@ if (UNIX)
 
     add_executable(test_hashtable ${test_hashtable_FILES} )
     target_link_libraries(test_hashtable plctag pthread)
+
+# regression tests
+#    set ( regression_test_FILES "${test_SRC_PATH}/regression/test.c"
+#                                "${test_SRC_PATH}/regression/logix.c"
+#                                "${test_SRC_PATH}/regression/logix.h"
+#                                "${test_SRC_PATH}/regression/packet.c"
+#                                "${test_SRC_PATH}/regression/packet.h"
+#                                "${test_SRC_PATH}/regression/util.c"
+#                                "${test_SRC_PATH}/regression/util.h" )
+#
+#
+#    foreach ( file ${regression_test_FILES} )
+#        set_source_files_properties("${file}" PROPERTIES COMPILE_FLAGS "${BASE_FLAGS} -std=c11")
+#    endforeach ( file )
+#
+#    add_executable ( ab_regression ${regression_test_FILES} )
+#    target_link_libraries ( ab_regression plctag_dyn pthread )
 
 	# example programs
     set ( example_PROGRAMS async
@@ -395,6 +402,7 @@ endif()
 
 install(TARGETS plctag_dyn DESTINATION lib${LIB_SUFFIX})
 install(TARGETS plctag_static DESTINATION lib${LIB_SUFFIX})
+
 install(FILES "${lib_SRC_PATH}/libplctag.h" DESTINATION include)
 install(FILES "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libplctag.pc" DESTINATION "lib${LIB_SUFFIX}/pkgconfig")
 

@@ -319,9 +319,6 @@ LIB_EXPORT void plc_tag_set_debug_level(int debug_level)
 /*
  * Check that the library supports the required API version.
  *
- * The version is passed as an encoded integer.   The encoding is the same
- * as for plc_tag_get_lib_version().
- *
  * PLCTAG_STATUS_OK is returned if the version matches.  If it does not,
  * PLCTAG_ERR_UNSUPPORTED is returned.
  */
@@ -337,7 +334,7 @@ LIB_EXPORT int plc_tag_check_lib_version(int req_major, int req_minor, int req_p
                                  + (((uint64_t)req_minor) << 16u)
                                    + (uint64_t)req_patch;
 
-    if(lib_encoded_version >= req_encoded_version) {
+    if(version_major == (uint64_t)req_major && lib_encoded_version >= req_encoded_version) {
         return PLCTAG_STATUS_OK;
     } else {
         return PLCTAG_ERR_UNSUPPORTED;

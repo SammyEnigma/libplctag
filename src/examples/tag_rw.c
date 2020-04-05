@@ -22,12 +22,13 @@
 /* need this for strdup */
 #define POSIX_C_SOURCE 200809L
 
+#include <inttypes.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
 #include <stdarg.h>
 #include <string.h>
-#include <lib/libplctag2.h>
+#include <lib/libplctag.h>
 #include <lib/version.h>
 #include "utils.h"
 
@@ -42,8 +43,10 @@
 #define PLC_LIB_SINT16  (0x210)
 #define PLC_LIB_UINT32  (0x120)
 #define PLC_LIB_SINT32  (0x220)
+#define PLC_LIB_UINT64  (0x140)
+#define PLC_LIB_SINT64  (0x240)
 #define PLC_LIB_REAL32  (0x320)
-
+#define PLC_LIB_REAL64  (0x340)
 
 #define DATA_TIMEOUT 5000
 
@@ -85,6 +88,7 @@ void check_version(void)
 {
     if(plc_tag_check_lib_version(REQUIRED_VERSION) != PLCTAG_STATUS_OK) {
         printf("Library version %d.%d.%d requested, but linked library version is not compatible!\n", REQUIRED_VERSION);
+        exit(1);
     }
 }
 
@@ -95,7 +99,7 @@ void print_lib_version(void)
     int i, size = 0;
     char ver[16] = {0,};
 
-    tag = plc_tag_create("make=system&family=library&name=version&debug=4", DATA_TIMEOUT);
+    tag = plc_tag_create("make=system&family=library&name=version", DATA_TIMEOUT);
     if(tag < 0) {
         fprintf(stderr,"ERROR %s: Could not create tag!\n", plc_tag_decode_error(tag));
         return;
@@ -143,8 +147,14 @@ void parse_args(int argc, char **argv)
                     data_type = PLC_LIB_UINT32;
                 } else if(!strcasecmp("sint32",argv[i])) {
                     data_type = PLC_LIB_SINT32;
+                } else if(!strcasecmp("uint64",argv[i])) {
+                    data_type = PLC_LIB_UINT64;
+                } else if(!strcasecmp("sint64",argv[i])) {
+                    data_type = PLC_LIB_SINT64;
                 } else if(!strcasecmp("real32",argv[i])) {
                     data_type = PLC_LIB_REAL32;
+                } else if(!strcasecmp("real64",argv[i])) {
+                    data_type = PLC_LIB_REAL64;
                 } else {
                     printf("ERROR: unknown data type: %s\n",argv[i]);
                     usage();
@@ -205,9 +215,16 @@ int main(int argc, char **argv)
 {
     int32_t tag = 0;
     int is_write = 0;
-    uint32_t u_val;
-    int32_t i_val;
-    float f_val;
+    uint64_t u_val64;
+    uint32_t u_val32;
+    uint16_t u_val16;
+    uint8_t u_val8;
+    int64_t i_val64;
+    int32_t i_val32;
+    int16_t i_val16;
+    int8_t i_val8;
+    double f_val64;
+    float f_val32;
     int i;
     int rc;
 
@@ -229,11 +246,37 @@ int main(int argc, char **argv)
 
         switch(data_type) {
         case PLC_LIB_BIT:
+            /* fall through */
         case PLC_LIB_UINT8:
+            if(sscanf_platform(write_str,"%" SCNu8 "", &u_val8) != 1) {
+                printf("ERROR: bad format for unsigned 8-bit integer for write value.\n");
+                usage();
+                exit(1);
+            }
+
+            break;
+
         case PLC_LIB_UINT16:
+            if(sscanf_platform(write_str,"%" SCNu16 "",&u_val16) != 1) {
+                printf("ERROR: bad format for unsigned 16-bit integer for write value.\n");
+                usage();
+                exit(1);
+            }
+
+            break;
+
         case PLC_LIB_UINT32:
-            if(sscanf_platform(write_str,"%u",&u_val) != 1) {
-                printf("ERROR: bad format for unsigned integer for write value.\n");
+            if(sscanf_platform(write_str,"%" SCNu32 "", &u_val32) != 1) {
+                printf("ERROR: bad format for unsigned 32-bit integer for write value.\n");
+                usage();
+                exit(1);
+            }
+
+            break;
+
+        case PLC_LIB_UINT64:
+            if(sscanf_platform(write_str, "%" SCNu64 "", &u_val64) != 1) {
+                printf("ERROR: bad format for unsigned 64-bit integer for write value.\n");
                 usage();
                 exit(1);
             }
@@ -241,10 +284,35 @@ int main(int argc, char **argv)
             break;
 
         case PLC_LIB_SINT8:
+            if(sscanf_platform(write_str,"%" SCNd8 "", &i_val8) != 1) {
+                printf("ERROR: bad format for signed 8-bit integer for write value.\n");
+                usage();
+                exit(1);
+            }
+
+            break;
+
         case PLC_LIB_SINT16:
+            if(sscanf_platform(write_str,"%" SCNd16 "", &i_val16) != 1) {
+                printf("ERROR: bad format for signed 16-bit integer for write value.\n");
+                usage();
+                exit(1);
+            }
+
+            break;
+
         case PLC_LIB_SINT32:
-            if(sscanf_platform(write_str,"%d",&i_val) != 1) {
-                printf("ERROR: bad format for signed integer for write value.\n");
+            if(sscanf_platform(write_str,"%" SCNd32 "", &i_val32) != 1) {
+                printf("ERROR: bad format for signed 32-bit integer for write value.\n");
+                usage();
+                exit(1);
+            }
+
+            break;
+
+        case PLC_LIB_SINT64:
+            if(sscanf_platform(write_str, "%" SCNd64 "", &i_val64) != 1) {
+                printf("ERROR: bad format for signed 64-bit integer for write value.\n");
                 usage();
                 exit(1);
             }
@@ -252,8 +320,17 @@ int main(int argc, char **argv)
             break;
 
         case PLC_LIB_REAL32:
-            if(sscanf_platform(write_str,"%f",&f_val) != 1) {
+            if(sscanf_platform(write_str,"%f", &f_val32) != 1) {
                 printf("ERROR: bad format for 32-bit floating point for write value.\n");
+                usage();
+                exit(1);
+            }
+
+            break;
+
+        case PLC_LIB_REAL64:
+            if(sscanf_platform(write_str, "%lf", &f_val64) != 1) {
+                printf("ERROR: bad format for 64-bit floating point for write value.\n");
                 usage();
                 exit(1);
             }
@@ -301,41 +378,57 @@ int main(int argc, char **argv)
             if(data_type == PLC_LIB_BIT) {
                 printf("data=%d\n", (plc_tag_get_bit(tag, 0) ? 1 : 0));
             } else {
+                index = 0;
                 for(i=0; index < plc_tag_get_size(tag); i++) {
                     switch(data_type) {
                     case PLC_LIB_UINT8:
-                        printf("data[%d]=%u (%x)\n",i,plc_tag_get_uint8(tag,index),plc_tag_get_uint8(tag,index));
+                        printf("data[%d]=%" PRIu8 " (%" PRIx8 ")\n", i, plc_tag_get_uint8(tag,index),plc_tag_get_uint8(tag,index));
                         index += 1;
                         break;
 
                     case PLC_LIB_UINT16:
-                        printf("data[%d]=%u (%x)\n",i,plc_tag_get_uint16(tag,index),plc_tag_get_uint16(tag,index));
+                        printf("data[%d]=%" PRIu16 " (%" PRIx16 ")\n", i, plc_tag_get_uint16(tag,index),plc_tag_get_uint16(tag,index));
                         index += 2;
                         break;
 
                     case PLC_LIB_UINT32:
-                        printf("data[%d]=%u (%x)\n",i,plc_tag_get_uint32(tag,index),plc_tag_get_uint32(tag,index));
+                        printf("data[%d]=%" PRIu32 " (%" PRIx32 ")\n",i, plc_tag_get_uint32(tag,index), plc_tag_get_uint32(tag,index));
                         index += 4;
                         break;
 
+                    case PLC_LIB_UINT64:
+                        printf("data[%d]=%" PRIu64 " (%" PRIx64 ")\n", i, plc_tag_get_uint64(tag,index),plc_tag_get_uint64(tag,index));
+                        index += 8;
+                        break;
+
                     case PLC_LIB_SINT8:
-                        printf("data[%d]=%d (%x)\n",i,plc_tag_get_int8(tag,index),plc_tag_get_int8(tag,index));
+                        printf("data[%d]=%" PRId8 " (%" PRIx8 ")\n", i, plc_tag_get_int8(tag,index),plc_tag_get_int8(tag,index));
                         index += 1;
                         break;
 
                     case PLC_LIB_SINT16:
-                        printf("data[%d]=%d (%x)\n",i,plc_tag_get_int16(tag,index),plc_tag_get_int16(tag,index));
+                        printf("data[%d]=%" PRId16 " (%" PRIx16 ")\n", i, plc_tag_get_int16(tag,index),plc_tag_get_int16(tag,index));
                         index += 2;
                         break;
 
                     case PLC_LIB_SINT32:
-                        printf("data[%d]=%d (%x)\n",i,plc_tag_get_int32(tag,index),plc_tag_get_int32(tag,index));
+                        printf("data[%d]=%" PRId32 " (%" PRIx32 ")\n", i, plc_tag_get_int32(tag,index),plc_tag_get_int32(tag,index));
                         index += 4;
+                        break;
+
+                    case PLC_LIB_SINT64:
+                        printf("data[%d]=%" PRId64 " (%" PRIx64 ")\n", i, plc_tag_get_int64(tag,index),plc_tag_get_int64(tag,index));
+                        index += 8;
                         break;
 
                     case PLC_LIB_REAL32:
                         printf("data[%d]=%f\n",i,plc_tag_get_float32(tag,index));
                         index += 4;
+                        break;
+
+                    case PLC_LIB_REAL64:
+                        printf("data[%d]=%lf\n", i, plc_tag_get_float64(tag,index));
+                        index += 8;
                         break;
                     }
                 }
@@ -343,35 +436,47 @@ int main(int argc, char **argv)
         } else {
             switch(data_type) {
             case PLC_LIB_BIT:
-                rc = plc_tag_set_bit(tag, 0, (int)u_val);
+                rc = plc_tag_set_bit(tag, 0, (int)u_val8);
                 break;
 
             case PLC_LIB_UINT8:
-                rc = plc_tag_set_uint8(tag,0,(uint8_t)u_val);
+                rc = plc_tag_set_uint8(tag,0, u_val8);
                 break;
 
             case PLC_LIB_UINT16:
-                rc = plc_tag_set_uint16(tag,0, (uint16_t)u_val);
+                rc = plc_tag_set_uint16(tag,0, u_val16);
                 break;
 
             case PLC_LIB_UINT32:
-                rc = plc_tag_set_uint32(tag,0,(uint32_t)u_val);
+                rc = plc_tag_set_uint32(tag,0, u_val32);
+                break;
+
+            case PLC_LIB_UINT64:
+                rc = plc_tag_set_uint64(tag,0, u_val64);
                 break;
 
             case PLC_LIB_SINT8:
-                rc = plc_tag_set_int8(tag,0,(int8_t)i_val);
+                rc = plc_tag_set_int8(tag,0, i_val8);
                 break;
 
             case PLC_LIB_SINT16:
-                rc = plc_tag_set_int16(tag,0,(int16_t)i_val);
+                rc = plc_tag_set_int16(tag,0, i_val16);
                 break;
 
             case PLC_LIB_SINT32:
-                rc = plc_tag_set_int32(tag,0,(int32_t)i_val);
+                rc = plc_tag_set_int32(tag,0, i_val32);
+                break;
+
+            case PLC_LIB_SINT64:
+                rc = plc_tag_set_int64(tag,0, i_val64);
                 break;
 
             case PLC_LIB_REAL32:
-                rc = plc_tag_set_float32(tag,0,f_val);
+                rc = plc_tag_set_float32(tag, 0, f_val32);
+                break;
+
+            case PLC_LIB_REAL64:
+                rc = plc_tag_set_float64(tag, 0, f_val64);
                 break;
             }
 
