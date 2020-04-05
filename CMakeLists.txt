@@ -402,9 +402,6 @@ elseif(WIN32)
 	install(TARGETS plctag_dyn DESTINATION lib${LIB_SUFFIX})
 endif()
 
-install(TARGETS plctag_dyn DESTINATION lib${LIB_SUFFIX})
-install(TARGETS plctag_static DESTINATION lib${LIB_SUFFIX})
-
 install(FILES "${lib_SRC_PATH}/libplctag.h" DESTINATION include)
 install(FILES "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libplctag.pc" DESTINATION "lib${LIB_SUFFIX}/pkgconfig")
 
