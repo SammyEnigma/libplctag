@@ -722,6 +722,7 @@ int ab_get_bit(plc_tag_p raw_tag, int offset_bit)
     }
 
     /* is there enough data */
+    pdebug(DEBUG_SPEW, "real_offset=%d, byte offset=%d, tag size=%d", real_offset, (real_offset/8), tag->size);
     if((real_offset < 0) || ((real_offset / 8) >= tag->size)) {
         pdebug(DEBUG_WARN,"Data offset out of bounds.");
         return PLCTAG_ERR_OUT_OF_BOUNDS;
