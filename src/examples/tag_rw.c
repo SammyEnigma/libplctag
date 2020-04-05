@@ -376,7 +376,13 @@ int main(int argc, char **argv)
 
             /* display the data */
             if(data_type == PLC_LIB_BIT) {
-                printf("data=%d\n", (plc_tag_get_bit(tag, 0) ? 1 : 0));
+                int rc = plc_tag_get_bit(tag, 0);
+
+                if(rc < 0) {
+                    printf("Error received trying to read bit tag: %s!\n", plc_tag_decode_error(rc));
+                } else {
+                    printf("data=%d\n", rc);
+                }
             } else {
                 index = 0;
                 for(i=0; index < plc_tag_get_size(tag); i++) {
