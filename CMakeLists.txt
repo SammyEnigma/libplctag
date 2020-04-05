@@ -338,6 +338,7 @@ if (UNIX)
                            string
                            test_reconnect
                            test_special
+                           toggle_bit
                            toggle_bool
                            write_string
                            tag_rw )
@@ -354,6 +355,7 @@ elseif(WIN32)
                            slc500
                            string
                            test_special
+                           toggle_bit
                            toggle_bool
                            write_string
                            tag_rw )
