@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2017 by Kyle Hayes                                      *
+ *   Copyright (C) 2020 by Kyle Hayes                                      *
  *   Author Kyle Hayes  kyle.hayes@gmail.com                               *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -24,7 +24,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
-#include "../lib/libplctag2.h"
+#include "../lib/libplctag.h"
 #include "utils.h"
 
 #define REQUIRED_VERSION 2,1,0

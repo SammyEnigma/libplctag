@@ -26,7 +26,7 @@
 #include <string.h>
 #include <util/debug.h>
 #include <platform.h>
-#include <lib/libplctag2.h>
+#include <lib/libplctag.h>
 #include <lib/version.h>
 
 

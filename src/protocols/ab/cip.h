@@ -27,7 +27,7 @@
 #ifndef __LIBPLCTAG_AB_CIP_H__
 #define __LIBPLCTAG_AB_CIP_H__
 
-#include <lib/libplctag2.h>
+#include <lib/libplctag.h>
 #include <ab/ab_common.h>
 #include <ab/defs.h>
 

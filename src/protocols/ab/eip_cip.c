@@ -35,7 +35,7 @@
 
 #include <ctype.h>
 #include <platform.h>
-#include <lib/libplctag2.h>
+#include <lib/libplctag.h>
 #include <lib/tag.h>
 #include <ab/defs.h>
 #include <ab/ab_common.h>

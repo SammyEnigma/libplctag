@@ -20,7 +20,7 @@
 
 #include <assert.h>
 #include <stdio.h>
-#include "../../lib/libplctag2.h"
+#include "../../lib/libplctag.h"
 #include "../../util/hashtable.h"
 #include "../../util/debug.h"
 

@@ -26,7 +26,7 @@
 #include <pthread.h>
 #include <stdint.h>
 #include <sys/time.h>
-#include "../lib/libplctag2.h"
+#include "../lib/libplctag.h"
 #include "utils.h"
 
 #define REQUIRED_VERSION 2,1,0

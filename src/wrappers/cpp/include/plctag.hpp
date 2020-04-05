@@ -5,7 +5,7 @@
 
 #include <string>
 #include <vector>
-#include <libplctag2.h>
+#include <libplctag.h>
 #include "logging.hpp"
 
 class plctag

@@ -113,7 +113,7 @@ void print_lib_version(void)
         ver[i] = (char)plc_tag_get_uint8(tag,i);
     }
 
-    printf("Library version %s(%d)\n", ver, size);
+    printf("Library version %s.\n", ver);
 
     plc_tag_destroy(tag);
 }

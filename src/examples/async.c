@@ -27,7 +27,8 @@
 
 
 #include <stdio.h>
-#include "../lib/libplctag2.h"
+#include <stdlib.h>
+#include "../lib/libplctag.h"
 #include "utils.h"
 
 

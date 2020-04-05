@@ -35,7 +35,7 @@
 #else
     #include <signal.h>
 #endif
-#include "../lib/libplctag2.h"
+#include "../lib/libplctag.h"
 #include "utils.h"
 
 

@@ -34,7 +34,7 @@
 #define MAX_CONN_PATH       (260)   /* 256 plus padding. */
 
 /* they are used in some of these includes */
-#include <lib/libplctag2.h>
+#include <lib/libplctag.h>
 #include <lib/tag.h>
 #include <ab/ab_common.h>
 #include <ab/session.h>

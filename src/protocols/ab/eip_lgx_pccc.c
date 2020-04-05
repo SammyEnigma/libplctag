@@ -31,7 +31,7 @@ extern "C"
 */
 
 
-#include <lib/libplctag2.h>
+#include <lib/libplctag.h>
 #include <ab/ab_common.h>
 #include <ab/pccc.h>
 #include <ab/eip_lgx_pccc.h>

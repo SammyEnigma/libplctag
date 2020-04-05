@@ -27,7 +27,7 @@
 #include <limits.h>
 #include <float.h>
 #include <platform.h>
-#include <lib/libplctag2.h>
+#include <lib/libplctag.h>
 #include <lib/tag.h>
 #include <ab/ab.h>
 #include <ab/ab_common.h>
